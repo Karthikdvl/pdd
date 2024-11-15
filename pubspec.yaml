@@ -79,8 +79,9 @@ flutter:
     - assets/product_4.png
     - assets/product_5.png
     - assets/product_6.png
+    - assets/productDetailimage.png
 
-    
+
   fonts:
       - family: Gabarito
         fonts:
