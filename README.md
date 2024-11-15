@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ingreskin
 
 A new Flutter project.
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# pdd
+>>>>>>> 897119fa832143a7f739446ecbfd3171b3410929
