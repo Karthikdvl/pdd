@@ -73,6 +73,14 @@ flutter:
     - assets/vector622.svg
     - assets/Rectangle568.png
     - assets/Image7.png
+    - assets/product_1.png
+    - assets/product_2.png
+    - assets/product_3.png
+    - assets/product_4.png
+    - assets/product_5.png
+    - assets/product_6.png
+
+    
   fonts:
       - family: Gabarito
         fonts:
