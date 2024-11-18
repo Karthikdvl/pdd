@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/homeScreenSection/productDetailpage.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,6 +31,12 @@ class _SkinSubConcernScreenState extends State<SkinSubConcernScreen> {
       return;
     }
     // Navigate to the next screen or perform action
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProductDetailPage(),
+      ),
+    );
   }
 
   @override
@@ -77,7 +84,8 @@ class _SkinSubConcernScreenState extends State<SkinSubConcernScreen> {
             buildSubConcernOption(
               title: 'Acne Scars',
               description: 'Permanent bumpy skin caused by severe acne',
-              imagePath: 'assets/acne_scars.png', // Update with actual image path
+              imagePath:
+                  'assets/acne_scars.png', // Update with actual image path
               value: 'Acne Scars',
             ),
 
@@ -85,7 +93,8 @@ class _SkinSubConcernScreenState extends State<SkinSubConcernScreen> {
             buildSubConcernOption(
               title: 'Acne Marks',
               description: 'Temporary marks or spots left after acne',
-              imagePath: 'assets/acne_marks.png', // Update with actual image path
+              imagePath:
+                  'assets/acne_marks.png', // Update with actual image path
               value: 'Acne Marks',
             ),
 

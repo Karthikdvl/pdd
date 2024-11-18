@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/adminPages/feedbackscreen.dart';
+import 'package:ingreskin/adminPages/productEditscreen.dart';
+import 'package:ingreskin/adminPages/productListScreen.dart';
+import 'package:ingreskin/adminPages/reviewScreen.dart';
+import 'package:ingreskin/homepage.dart';
+import 'package:ingreskin/skinAssessment/navigationbar.dart';
+import 'package:ingreskin/skinAssessment/skinAssessment.dart';
 import 'dart:async'; // Import for Timer
 import 'getstartedpage.dart'; // Import your GetStartedPage file
+
 
 
 void main() {
@@ -15,6 +23,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
+      routes: {
+        '/list-products': (context) => const ProductListScreen(),
+        '/edit-products': (context) => const ProductEditScreen(),
+        '/feedback': (context) => const FeedbackScreen(),
+        '/reviews': (context) => const ReviewsScreen(),
+        '/home': (context) => HomePage(),
+        '/navigation': (context) => NavigationBarPage(),
+        '/skin-assessment': (context) => SkinAssessmentScreen()
+
+      },
     );
   }
 }

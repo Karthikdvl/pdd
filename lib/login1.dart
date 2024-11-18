@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'forgot_password.dart';
 import 'homepage.dart';
+import 'skinAssessment/navigationbar.dart';
+import 'skinAssessment/skinAssessment.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +23,14 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(color: Color(0xFF1E293B)),
         ),
       ),
-      home: const LoginPage(),
+      // Define all routes
+      // initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => HomePage(),
+        '/navigation': (context) => NavigationBarPage(),
+        '/skin-assessment': (context) => SkinAssessmentScreen(),
+      },
     );
   }
 }
@@ -58,10 +67,8 @@ class _LoginPageState extends State<LoginPage> {
         // Simulate API call
         await Future.delayed(const Duration(seconds: 2));
         
-        // Navigate to HomePage on success
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => HomePage()),
-        );
+        // Navigate to HomePage using named route
+        Navigator.of(context).pushReplacementNamed('/home');
       } catch (e) {
         setState(() {
           _errorMessage = 'Login failed. Please try again.';
@@ -78,116 +85,120 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Login',
+            style: TextStyle(color: Colors.white)), // Updated text color
         backgroundColor: const Color(0xFF2B8761),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Login',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
+        child: SingleChildScrollView( // Added for better scrolling
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 40), // Added more space at top
+                  const Text(
+                    'Login',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
                     ),
                   ),
-                _buildTextField(
-                  'Email',
-                  emailController,
-                  false,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  'Password',
-                  passwordController,
-                  true,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter your password';
-                    }
-                    if (value!.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgotPasswordPage(),
-                        ),
-                      );
+                  const SizedBox(height: 32),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  _buildTextField(
+                    'Email',
+                    emailController,
+                    false,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
                     },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Color(0xFF3C9AFB),
-                        fontSize: 14,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    'Password',
+                    passwordController,
+                    true,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter your password';
+                      }
+                      if (value!.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Color(0xFF3C9AFB),
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2B8761),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2B8761),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

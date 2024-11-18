@@ -1,6 +1,7 @@
 // lib/onboarding_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:ingreskin/adminPages/adminlogin.dart';
 import 'package:ingreskin/login1.dart';
 import 'package:ingreskin/register.dart';
 
@@ -32,7 +33,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _onAdminLoginPressed() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AdminLoginPage()),
+      MaterialPageRoute(builder: (context) => AdminLoginScreen()),
     );
   }
 
@@ -164,15 +165,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
 // Create AdminLoginPage, LoginPage, and SignUpPage classes
 
-class AdminLoginPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Admin Login')),
-      body: Center(child: Text('Admin Login Page')),
-    );
-  }
-}
+// class AdminLoginPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Admin Login')),
+//       body: Center(child: Text('Admin Login Page')),
+//     );
+//   }
+// }
 
 // class LoginPage extends StatelessWidget {
 //   @override
