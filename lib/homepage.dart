@@ -11,12 +11,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
       initialRoute: '/home',
       routes: {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => SkinAssessmentScreen()
+        '/skin-assessment': (context) => SkinAssessmentScreen(),
+        '/profile': (context) => ProfilePage(user: {}),
+        '/scan': (context) => ScanPage(),
+        '/photo': (context) => PhotoPage(),
+        '/history': (context) => HistoryPage(),
       },
     );
   }
@@ -25,6 +28,10 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Retrieve user data from Navigator arguments
+    final Map<String, dynamic>? user =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Homepage', style: TextStyle(color: Colors.black)),
@@ -40,8 +47,8 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.person, color: Colors.black),
             onPressed: () {
-              // Profile action
-              // You can add a navigation to Profile page here
+              // Navigate to Profile Page
+              Navigator.pushNamed(context, '/profile');
             },
           ),
         ],
@@ -114,16 +121,16 @@ class HomePage extends StatelessWidget {
           // Handle navigation for each tab
           switch (index) {
             case 0:
-              // Home
+              Navigator.pushNamed(context, '/home');
               break;
             case 1:
-              // Scan
+              Navigator.pushNamed(context, '/scan');
               break;
             case 2:
-              // Photo
+              Navigator.pushNamed(context, '/photo');
               break;
             case 3:
-              // History
+              Navigator.pushNamed(context, '/history');
               break;
           }
         },
@@ -189,6 +196,79 @@ class AdCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Additional Pages
+class ProfilePage extends StatelessWidget {
+  final Map<String, dynamic>? user;
+
+  const ProfilePage({Key? key, required this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: const Color(0xFF2B8761),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Name: ${user?['name'] ?? 'N/A'}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Email: ${user?['email'] ?? 'N/A'}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2B8761),
+              ),
+              child: const Text('Back to Home'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ScanPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Scan')),
+      body: Center(child: Text('Scan Page')),
+    );
+  }
+}
+
+class PhotoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Photo')),
+      body: Center(child: Text('Photo Page')),
+    );
+  }
+}
+
+class HistoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('History')),
+      body: Center(child: Text('History Page')),
     );
   }
 }

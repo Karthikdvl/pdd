@@ -3,7 +3,9 @@ import 'forgot_password.dart';
 import 'homepage.dart';
 import 'skinAssessment/navigationbar.dart';
 import 'skinAssessment/skinAssessment.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+// import 'profilepage.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -24,12 +26,16 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Define all routes
-      // initialRoute: '/login',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginPage(),
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) => SkinAssessmentScreen(),
+        '/scan': (context) => ScanPage(),
+        '/photo': (context) => PhotoPage(),
+        '/history': (context) => HistoryPage(),
+        // '/profile': (context) => ProfilePage(),
       },
     );
   }
@@ -63,15 +69,42 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = null;
       });
 
+      final url = Uri.parse(
+          'http://192.168.211.146:5000/login'); // Replace <your-server-ip> with your Flask server's IP address or localhost for testing
+      final body = json.encode({
+        'email': emailController.text,
+        'password': passwordController.text,
+      });
+
       try {
-        // Simulate API call
-        await Future.delayed(const Duration(seconds: 2));
-        
-        // Navigate to HomePage using named route
-        Navigator.of(context).pushReplacementNamed('/home');
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: body,
+        );
+
+        if (response.statusCode == 200) {
+          // Parse the JSON response
+          final responseData = json.decode(response.body);
+          // Assuming responseData['user'] contains the user data
+          final user = responseData['user'];
+
+          // Pass user data to the HomePage using named route
+          Navigator.of(context).pushReplacementNamed('/home', arguments: {
+            'name': responseData['user']['name'],
+            'email': responseData['user']['email'],
+          });
+        } else {
+          // Show error message from the server
+          final responseData = json.decode(response.body);
+          setState(() {
+            _errorMessage = responseData['message'];
+          });
+        }
       } catch (e) {
         setState(() {
-          _errorMessage = 'Login failed. Please try again.';
+          print("Error: $e"); // Add this for debugging
+          _errorMessage = 'Failed to connect to the server. Please try again.';
         });
       } finally {
         setState(() {
@@ -90,7 +123,8 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: const Color(0xFF2B8761),
       ),
       body: SafeArea(
-        child: SingleChildScrollView( // Added for better scrolling
+        child: SingleChildScrollView(
+          // Added for better scrolling
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -127,7 +161,8 @@ class _LoginPageState extends State<LoginPage> {
                       if (value?.isEmpty ?? true) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value!)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -185,7 +220,8 @@ class _LoginPageState extends State<LoginPage> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
@@ -232,18 +268,22 @@ class _LoginPageState extends State<LoginPage> {
             hintText: 'Enter your $label',
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2B8761), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFF2B8761), width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
