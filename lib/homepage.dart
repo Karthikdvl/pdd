@@ -74,6 +74,7 @@ class HomePage extends StatelessWidget {
               ),
               SizedBox(height: 24),
 
+
               // Ads Section
               Text(
                 'Ads',

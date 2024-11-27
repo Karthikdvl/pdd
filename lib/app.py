@@ -21,7 +21,7 @@ pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://KARTHIKDVL:458565@192.168.211.146/skindatabase'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/skindatabase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'karthik'
 bcrypt = Bcrypt(app)
@@ -81,6 +81,36 @@ def register():
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'An error occurred during registration.', 'error': str(e)}), 500
+    
+# Route for user login
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json  # Expecting JSON data
+    email = data.get('email')
+    password = data.get('password')
+
+    # Validation checks
+    if not all([email, password]):
+        return jsonify({'message': 'Email and password are required!'}), 400
+
+    # Find the user by email
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'Invalid email or password!'}), 401
+
+    # Verify the password
+    if not bcrypt.check_password_hash(user.password_hash, password):
+        return jsonify({'message': 'Invalid email or password!'}), 401
+
+    # Successful login
+    return jsonify({
+        'message': 'Login successful!',
+        'user': {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email
+        }
+    }), 200
 
 
 

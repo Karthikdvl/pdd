@@ -1,0 +1,7 @@
+give me sql code for creating table register which contains fields name, email, password, confirm password
+
+Define the User model for the `register` table
+
+Route for user registration
+
+now integrate route for flask and flutter code
