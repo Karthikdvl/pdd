@@ -1,0 +1,319 @@
+flutter:
+  assets:
+    - assets/images/dry_skin.png
+    - assets/images/oily_skin.png
+    - assets/images/combination_skin.png
+    - assets/images/normal_skin.png
+
+flutter:
+  assets:
+    - assets/images/not_sensitive.png
+    - assets/images/mildly_sensitive.png
+    - assets/images/very_sensitive.png
+    - assets/images/acne.png
+    - assets/images/wrinkles.png
+    - assets/images/dark_spots.png
+    - assets/images/redness.png
+    - assets/images/dullness.png
+    - assets/images/dryness.png
+    - assets/images/oiliness.png
+
+after 7 th page
+
+
+Here is the Flutter implementation for Page 5: Are You Prone to Any of the Following?, Page 6: Do You Have Any Known Allergies to Skincare Ingredients?, and Page 7: What Is Your Skincare Routine Preference?.
+
+Page 5: Are You Prone to Any of the Following?
+File: page5_prone_conditions.dart
+dart
+Copy code
+import 'package:flutter/material.dart';
+import 'page6_allergies.dart';
+
+class ProneConditionsPage extends StatefulWidget {
+  @override
+  _ProneConditionsPageState createState() => _ProneConditionsPageState();
+}
+
+class _ProneConditionsPageState extends State<ProneConditionsPage> {
+  List<String> _selectedConditions = [];
+
+  final List<Map<String, String>> proneOptions = [
+    {'label': 'Breakouts', 'image': 'assets/images/breakouts.png'},
+    {'label': 'Redness', 'image': 'assets/images/redness.png'},
+    {'label': 'Dry Patches', 'image': 'assets/images/dry_patches.png'},
+    {'label': 'Irritation', 'image': 'assets/images/irritation.png'},
+    {'label': 'Oily Skin', 'image': 'assets/images/oily_skin.png'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Prone Conditions'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Are you prone to any of the following?', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: proneOptions.length,
+                itemBuilder: (context, index) {
+                  final condition = proneOptions[index];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_selectedConditions.contains(condition['label'])) {
+                          _selectedConditions.remove(condition['label']);
+                        } else {
+                          _selectedConditions.add(condition['label']!);
+                        }
+                      });
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _selectedConditions.contains(condition['label'])
+                              ? Colors.teal
+                              : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            condition['image']!,
+                            height: 60,
+                            width: 60,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            condition['label']!,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllergiesPage()),
+                  );
+                },
+                child: Text('Next →'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+Page 6: Do You Have Any Known Allergies to Skincare Ingredients?
+File: page6_allergies.dart
+dart
+Copy code
+import 'package:flutter/material.dart';
+import 'page7_routine_preference.dart';
+
+class AllergiesPage extends StatefulWidget {
+  @override
+  _AllergiesPageState createState() => _AllergiesPageState();
+}
+
+class _AllergiesPageState extends State<AllergiesPage> {
+  final TextEditingController _allergiesController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Allergies'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Do you have any known allergies to skincare ingredients?',
+                style: TextStyle(fontSize: 16)),
+            SizedBox(height: 16),
+            TextField(
+              controller: _allergiesController,
+              decoration: InputDecoration(
+                hintText: 'Enter allergies or leave blank',
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoutinePreferencePage(),
+                    ),
+                  );
+                },
+                child: Text('Next →'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+Page 7: What Is Your Skincare Routine Preference?
+File: page7_routine_preference.dart
+dart
+Copy code
+import 'package:flutter/material.dart';
+
+class RoutinePreferencePage extends StatefulWidget {
+  @override
+  _RoutinePreferencePageState createState() => _RoutinePreferencePageState();
+}
+
+class _RoutinePreferencePageState extends State<RoutinePreferencePage> {
+  String? _selectedPreference;
+
+  final List<Map<String, String>> routineOptions = [
+    {'label': 'Simple (1-2 steps)', 'image': 'assets/images/simple_routine.png'},
+    {'label': 'Moderate (3-5 steps)', 'image': 'assets/images/moderate_routine.png'},
+    {'label': 'Detailed (6+ steps)', 'image': 'assets/images/detailed_routine.png'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Routine Preference'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('What is your skincare routine preference?', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: routineOptions.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPreference = routineOptions[index]['label'];
+                      });
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _selectedPreference ==
+                                  routineOptions[index]['label']
+                              ? Colors.teal
+                              : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            routineOptions[index]['image']!,
+                            height: 60,
+                            width: 60,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            routineOptions[index]['label']!,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to the next page or finish
+                  print('Selected Preference: $_selectedPreference');
+                },
+                child: Text('Finish'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+Assets
+Add the following image assets to your assets/images/ directory:
+
+Prone Conditions:
+breakouts.png
+redness.png
+dry_patches.png
+irritation.png
+oily_skin.png
+Routine Preferences:
+simple_routine.png
+moderate_routine.png
+detailed_routine.png
+Update pubspec.yaml to include these assets.
+
+
+Assets
+Add the following images to the assets/images/ folder and update your pubspec.yaml:
+
+Sunlight Exposure:
+rare_sun.png
+occasional_sun.png
+frequent_sun.png
+Environment:
+urban.png
+rural.png
+coastal.png
+mountainous.png
+Makeup:
+makeup_yes.png
+makeup_no.png
+makeup_occasional.png

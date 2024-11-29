@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssessment/skinAssessment.dart';
+import 'package:ingreskin/aiAssistant/consts.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
+  Gemini.init(
+    apiKey: GEMINI_API_KEY, // Replace with your actual API key
+  );
   runApp(MyApp());
 }
 
@@ -17,9 +24,9 @@ class MyApp extends StatelessWidget {
         '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) => SkinAssessmentScreen(),
         '/profile': (context) => ProfilePage(user: {}),
-        '/scan': (context) => ScanPage(),
+        '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoPage(),
-        '/history': (context) => HistoryPage(),
+         // Assuming this page is implemented in another file
       },
     );
   }
@@ -28,7 +35,6 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Retrieve user data from Navigator arguments
     final Map<String, dynamic>? user =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
@@ -39,7 +45,6 @@ class HomePage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black),
           onPressed: () {
-            // Navigate to NavigationBarPage
             Navigator.pushNamed(context, '/navigation');
           },
         ),
@@ -47,7 +52,6 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.person, color: Colors.black),
             onPressed: () {
-              // Navigate to Profile Page
               Navigator.pushNamed(context, '/profile');
             },
           ),
@@ -59,7 +63,6 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search Bar
               TextField(
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -73,9 +76,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 24),
-
-
-              // Ads Section
               Text(
                 'Ads',
                 style: TextStyle(
@@ -85,10 +85,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12),
-
-              // Single Ad Card
               AdCard(
-                imageUrl: 'assets/Rectangle568.png', // Local asset image
+                imageUrl: 'assets/Rectangle568.png',
                 name: 'Sample Product',
                 description: 'This is a description of the product.',
               ),
@@ -96,8 +94,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-
-      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: [
@@ -106,35 +102,54 @@ class HomePage extends StatelessWidget {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
+            icon: Icon(Icons.watch_later), // Product Expiry Tracker Icon
+            label: 'Expiry Tracker',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.camera_alt),
             label: 'Photo',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
+            icon: Icon(Icons.smart_toy), // AI Assistant Icon
+            label: 'AI Assistant',
           ),
         ],
         onTap: (index) {
-          // Handle navigation for each tab
           switch (index) {
             case 0:
               Navigator.pushNamed(context, '/home');
               break;
             case 1:
-              Navigator.pushNamed(context, '/scan');
+              Navigator.pushNamed(context, '/product-expiry');
               break;
             case 2:
               Navigator.pushNamed(context, '/photo');
               break;
             case 3:
-              Navigator.pushNamed(context, '/history');
+              Navigator.pushNamed(context, '/ai-assistant'); // Navigate to AI Assistant
               break;
           }
         },
+      ),
+    );
+  }
+}
+
+
+// New Product Expiry Tracker Page
+class ProductExpiryTrackerPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Product Expiry Tracker'),
+        backgroundColor: const Color(0xFF2B8761),
+      ),
+      body: Center(
+        child: Text(
+          'Track your product expiry dates here.',
+          style: TextStyle(fontSize: 18),
+        ),
       ),
     );
   }
@@ -240,16 +255,6 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class ScanPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Scan')),
-      body: Center(child: Text('Scan Page')),
     );
   }
 }

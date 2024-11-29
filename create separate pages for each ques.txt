@@ -1,0 +1,12 @@
+create separate pages for each questions and navigate to next page after clicking next
+page 1 :  Personal Details
+page 2 : What is your skin type?
+page 3 : How sensitive is your skin?
+page 4 : What are your primary skin concerns? (Select all that apply)
+page 5 :  Are you prone to any of the following?
+page 6 :  Do you have any known allergies to skincare ingredients?
+(Input text or leave blank if none)
+page 7 :  What is your skincare routine preference?
+page 8 :  How often are you exposed to sunlight?
+page 9 :  What is your primary environment?
+page 10 :  Do you wear makeup regularly?

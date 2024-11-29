@@ -32,9 +32,9 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) => SkinAssessmentScreen(),
-        '/scan': (context) => ScanPage(),
+        '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoPage(),
-        '/history': (context) => HistoryPage(),
+        
         // '/profile': (context) => ProfilePage(),
       },
     );
