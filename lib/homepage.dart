@@ -5,20 +5,20 @@ import 'package:ingreskin/skinAssessment/skinAssessment.dart';
 import 'package:ingreskin/aiAssistant/consts.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
-  Gemini.init(
-    apiKey: GEMINI_API_KEY, // Replace with your actual API key
-  );
-  runApp(MyApp());
-}
+// void main() {
+//   WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
+//   Gemini.init(
+//     apiKey: GEMINI_API_KEY, // Replace with your actual API key
+//   );
+//   runApp(MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/home',
+      // initialRoute: '/home',
       routes: {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(user: {}),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoPage(),
+        '/aiAssistant': (context) => AIassistant()
          // Assuming this page is implemented in another file
       },
     );
@@ -126,7 +127,7 @@ class HomePage extends StatelessWidget {
               Navigator.pushNamed(context, '/photo');
               break;
             case 3:
-              Navigator.pushNamed(context, '/ai-assistant'); // Navigate to AI Assistant
+              Navigator.pushNamed(context, '/aiAssistant'); // Navigate to AI Assistant
               break;
           }
         },

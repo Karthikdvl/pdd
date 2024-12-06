@@ -3,15 +3,22 @@ import 'package:ingreskin/adminPages/feedbackscreen.dart';
 import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
 import 'package:ingreskin/adminPages/reviewScreen.dart';
+import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/homepage.dart';
 import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssessment/skinAssessment.dart';
 import 'dart:async'; // Import for Timer
 import 'getstartedpage.dart'; // Import your GetStartedPage file
+import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:ingreskin/aiAssistant/consts.dart';
 
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
+  Gemini.init(
+    apiKey: GEMINI_API_KEY, // Replace with your actual API key
+  );
   runApp(const MyApp());
 }
 
@@ -30,7 +37,11 @@ class MyApp extends StatelessWidget {
         '/reviews': (context) => const ReviewsScreen(),
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => SkinAssessmentScreen()
+        '/skin-assessment': (context) => SkinAssessmentScreen(),
+        '/profile': (context) => ProfilePage(user: {}),
+        '/product-expiry': (context) => ProductExpiryTrackerPage(),
+        '/photo': (context) => PhotoPage(),
+        '/aiAssistant': (context) => AIassistant(),
 
       },
     );

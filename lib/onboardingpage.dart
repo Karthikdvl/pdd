@@ -5,9 +5,9 @@ import 'package:ingreskin/adminPages/adminlogin.dart';
 import 'package:ingreskin/login1.dart';
 import 'package:ingreskin/register.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

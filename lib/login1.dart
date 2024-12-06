@@ -5,10 +5,10 @@ import 'skinAssessment/navigationbar.dart';
 import 'skinAssessment/skinAssessment.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-// import 'profilepage.dart';
-void main() {
-  runApp(const MyApp());
-}
+// // import 'profilepage.dart';
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

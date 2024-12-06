@@ -4,9 +4,9 @@
   import 'dart:convert'; // For JSON encoding and decoding
   // import 'verify_acc.dart';
 
-  void main() {
-    runApp(const MyApp());
-  }
+  // void main() {
+  //   runApp(const MyApp());
+  // }
 
   class MyApp extends StatelessWidget {
     const MyApp({super.key});
