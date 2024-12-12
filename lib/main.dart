@@ -4,18 +4,18 @@ import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
 import 'package:ingreskin/adminPages/reviewScreen.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
+import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/homepage.dart';
-import 'package:ingreskin/skinAssessment/navigationbar.dart';
-import 'package:ingreskin/skinAssessment/skinAssessment.dart';
+import 'package:ingreskin/skinAssesstest/skinpages/navi.dart'; // Navigation bar
+import 'package:ingreskin/skinAssesstest/skinpages/page1_personal_details.dart';
+import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import UserSkinData
 import 'dart:async'; // Import for Timer
 import 'getstartedpage.dart'; // Import your GetStartedPage file
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:ingreskin/aiAssistant/consts.dart';
 
-
-
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
+  WidgetsFlutterBinding.ensureInitialized();
   Gemini.init(
     apiKey: GEMINI_API_KEY, // Replace with your actual API key
   );
@@ -27,6 +27,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Create a UserSkinData instance for skin assessment
+    UserSkinData userSkinData = UserSkinData();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
@@ -36,13 +39,12 @@ class MyApp extends StatelessWidget {
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
         '/home': (context) => HomePage(),
-        '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => SkinAssessmentScreen(),
+        '/navigation': (context) => NavigationBarPage(/*userSkinData: userSkinData*/),
+        '/skin-assessment': (context) => PersonalDetailsPage(userSkinData: userSkinData),
         '/profile': (context) => ProfilePage(user: {}),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoPage(),
         '/aiAssistant': (context) => AIassistant(),
-
       },
     );
   }
@@ -95,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 40.0),
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 color: Colors.grey,
               ),
             ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
+import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 import 'forgot_password.dart';
 import 'homepage.dart';
-import 'skinAssessment/navigationbar.dart';
+//import 'skinAssessment/navigationbar.dart';
 import 'skinAssessment/skinAssessment.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -26,17 +28,17 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Define all routes
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => HomePage(),
-        '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => SkinAssessmentScreen(),
-        '/product-expiry': (context) => ProductExpiryTrackerPage(),
-        '/photo': (context) => PhotoPage(),
+      // initialRoute: '/login',
+      // routes: {
+      //   '/login': (context) => const LoginPage(),
+      //   '/home': (context) => HomePage(),
+      //   '/navigation': (context) => NavigationBarPage(),
+      //   '/skin-assessment': (context) => SkinAssessmentScreen(),
+      //   '/product-expiry': (context) => ProductExpiryTrackerPage(),
+      //   '/photo': (context) => PhotoPage(),
         
-        // '/profile': (context) => ProfilePage(),
-      },
+      //   // '/profile': (context) => ProfilePage(),
+      // },
     );
   }
 }

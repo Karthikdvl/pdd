@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
-import 'package:ingreskin/skinAssessment/navigationbar.dart';
+import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
+//import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssessment/skinAssessment.dart';
 import 'package:ingreskin/aiAssistant/consts.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 
 // void main() {
 //   WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // initialRoute: '/home',
+      //initialRoute: '/home',
       routes: {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
@@ -138,23 +140,23 @@ class HomePage extends StatelessWidget {
 
 
 // New Product Expiry Tracker Page
-class ProductExpiryTrackerPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Product Expiry Tracker'),
-        backgroundColor: const Color(0xFF2B8761),
-      ),
-      body: Center(
-        child: Text(
-          'Track your product expiry dates here.',
-          style: TextStyle(fontSize: 18),
-        ),
-      ),
-    );
-  }
-}
+// class ProductExpiryTrackerPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Product Expiry Tracker'),
+//         backgroundColor: const Color(0xFF2B8761),
+//       ),
+//       body: Center(
+//         child: Text(
+//           'Track your product expiry dates here.',
+//           style: TextStyle(fontSize: 18),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // Ad Card Widget
 class AdCard extends StatelessWidget {
