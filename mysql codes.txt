@@ -24,3 +24,20 @@ CREATE TABLE user (
 );
 
 
+
+CREATE TABLE cosmetics (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `Label` VARCHAR(255),
+    `Brand` VARCHAR(255),
+    `Name` VARCHAR(255),
+    `Price` INT,
+    `Rank` DECIMAL(10, 2),
+    `Ingredients` TEXT,
+    `Combination` INT,
+    `Dry` INT,
+    `Normal` INT,
+    `Oily` INT,
+    `Sensitive` INT
+);
+
+
