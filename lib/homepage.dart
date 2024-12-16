@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
+import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 //import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssessment/skinAssessment.dart';
@@ -27,9 +28,8 @@ class MyApp extends StatelessWidget {
         '/skin-assessment': (context) => SkinAssessmentScreen(),
         '/profile': (context) => ProfilePage(user: {}),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
-        '/photo': (context) => PhotoPage(),
-        '/aiAssistant': (context) => AIassistant()
-         // Assuming this page is implemented in another file
+        '/photo': (context) => PhotoSearchScreen(),
+        '/aiAssistant': (context) => AIassistant(),
       },
     );
   }
@@ -262,15 +262,15 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-class PhotoPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Photo')),
-      body: Center(child: Text('Photo Page')),
-    );
-  }
-}
+// class PhotoPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Photo')),
+//       body: Center(child: Text('Photo Page')),
+//     );
+//   }
+// }
 
 class HistoryPage extends StatelessWidget {
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/config.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 import 'forgot_password.dart';
@@ -72,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       final url = Uri.parse(
-          'http://192.168.211.146:5000/login'); // Replace <your-server-ip> with your Flask server's IP address or localhost for testing
+          '$BASE_URL/login'); // Replace <your-server-ip> with your Flask server's IP address or localhost for testing
       final body = json.encode({
         'email': emailController.text,
         'password': passwordController.text,
@@ -179,9 +180,9 @@ class _LoginPageState extends State<LoginPage> {
                       if (value?.isEmpty ?? true) {
                         return 'Please enter your password';
                       }
-                      if (value!.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
+                      // if (value!.length < 6) {
+                      //   return 'Password must be at least 6 characters';
+                      // }
                       return null;
                     },
                   ),

@@ -60,6 +60,7 @@ class _PhotoSearchScreenState extends State<PhotoSearchScreen> {
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       // Handle back navigation
+                      Navigator.pushNamed(context, '/home');
                     },
                   ),
                   const Text(

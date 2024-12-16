@@ -1,43 +1,46 @@
+// homeScreenSection/product_expiry_tracker_page.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Add this to pubspec.yaml for date formatting
+import 'package:ingreskin/homeScreenSection/addProductPage.dart';
+import 'package:ingreskin/homeScreenSection/models/productItem.dart';
+import 'package:intl/intl.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false, // Optional: Disable the debug banner
+      title: 'Product Expiry Tracker',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ProductExpiryTrackerPage(),
+    );
+  }
+}
 
 class ProductExpiryTrackerPage extends StatefulWidget {
   const ProductExpiryTrackerPage({Key? key}) : super(key: key);
 
   @override
-  _ProductExpiryTrackerPageState createState() => _ProductExpiryTrackerPageState();
+  _ProductExpiryTrackerPageState createState() =>
+      _ProductExpiryTrackerPageState();
 }
 
 class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
-  // Sample product data - you would typically fetch this from a database
-  final List<ProductItem> _products = [
-    ProductItem(
-      name: 'Moisturizer',
-      brand: 'Neutrogena',
-      openedDate: DateTime.now().subtract(Duration(days: 90)),
-      expiryDate: DateTime.now().add(Duration(days: 180)),
-    ),
-    ProductItem(
-      name: 'Serum',
-      brand: 'The Ordinary',
-      openedDate: DateTime.now().subtract(Duration(days: 60)),
-      expiryDate: DateTime.now().add(Duration(days: 120)),
-    ),
-    ProductItem(
-      name: 'Sunscreen',
-      brand: 'La Roche-Posay',
-      openedDate: DateTime.now().subtract(Duration(days: 30)),
-      expiryDate: DateTime.now().add(Duration(days: 270)),
-    ),
-  ];
+  final List<ProductItem> _products = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Expiry Tracker'),
+        title: const Text('Product Expiry Tracker'),
         backgroundColor: Colors.white,
-        elevation: 0,
         foregroundColor: Colors.black,
       ),
       body: Padding(
@@ -45,19 +48,19 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Your Skincare Products',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 itemCount: _products.length,
                 itemBuilder: (context, index) {
-                  return _buildProductCard(_products[index]);
+                  return _buildProductCard(_products[index], index);
                 },
               ),
             ),
@@ -66,19 +69,19 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewProduct,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         backgroundColor: Colors.grey[700],
       ),
     );
   }
 
-  Widget _buildProductCard(ProductItem product) {
+  Widget _buildProductCard(ProductItem product, int index) {
     final daysRemaining = product.expiryDate.difference(DateTime.now()).inDays;
     Color statusColor = _getStatusColor(daysRemaining);
 
     return Card(
       elevation: 4,
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -89,34 +92,39 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
               children: [
                 Text(
                   product.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  product.brand,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      product.brand,
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => _removeProduct(index),
+                      icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Opened: ${DateFormat('MMM dd, yyyy').format(product.openedDate)}',
-                  style: TextStyle(fontSize: 14),
                 ),
                 Text(
                   'Expires: ${DateFormat('MMM dd, yyyy').format(product.expiryDate)}',
-                  style: TextStyle(fontSize: 14),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Text(
@@ -126,7 +134,7 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 _buildStatusIndicator(statusColor),
               ],
             ),
@@ -153,36 +161,23 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
     return Colors.green;
   }
 
-  void _addNewProduct() {
-    // Implement a dialog or navigation to add a new product
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add New Product'),
-          content: Text('Product addition functionality to be implemented'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
+  void _addNewProduct() async {
+    final result = await Navigator.push<ProductItem>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddProductPage(),
+      ),
     );
+    if (result != null) {
+      setState(() {
+        _products.add(result);
+      });
+    }
   }
-}
 
-class ProductItem {
-  final String name;
-  final String brand;
-  final DateTime openedDate;
-  final DateTime expiryDate;
-
-  ProductItem({
-    required this.name,
-    required this.brand,
-    required this.openedDate,
-    required this.expiryDate,
-  });
+  void _removeProduct(int index) {
+    setState(() {
+      _products.removeAt(index);
+    });
+  }
 }

@@ -1,5 +1,6 @@
   import 'package:flutter/material.dart';
   import 'package:http/http.dart' as http;
+import 'package:ingreskin/config.dart';
   import 'package:ingreskin/thankyouforreg.dart';
   import 'dart:convert'; // For JSON encoding and decoding
   // import 'verify_acc.dart';
@@ -60,7 +61,7 @@
     }
 
     Future<void> _registerUser() async {
-      final String apiUrl = 'http://192.168.211.146:5000/register'; // Replace with your Flask backend URL
+      final String apiUrl = '$BASE_URL/register'; // Replace with your Flask backend URL
 
       final Map<String, dynamic> requestData = {
         'name': _nameController.text,
