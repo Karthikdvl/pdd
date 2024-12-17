@@ -113,6 +113,51 @@ def login():
     }), 200
 
 
+# Product Data Model
+class Product(db.Model):
+    __tablename__ = 'cosmetics'  # Match the name of your table
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.String(100))
+    brand = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    price = db.Column(db.Float)
+    rank = db.Column(db.Float)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "label": self.label,
+            "brand": self.brand,
+            "name": self.name,
+            "price": self.price,
+            "rank": self.rank
+        }
+
+# Route for searching products in the database
+@app.route('/search', methods=['GET'])
+def search_products():
+    query = request.args.get('query', '').lower()
+
+    # Check if query is provided
+    if not query:
+        return jsonify({"results": [], "message": "Please provide a search query"}), 400
+
+    # Query the database for products matching name, label, or brand
+    products = Product.query.filter(
+        (Product.name.ilike(f"%{query}%")) |
+        (Product.label.ilike(f"%{query}%")) |
+        (Product.brand.ilike(f"%{query}%"))
+    ).all()
+
+    # Convert results to JSON
+    results = [product.to_dict() for product in products]
+
+    # Return results or a "not found" message
+    if results:
+        return jsonify({"results": results}), 200
+    else:
+        return jsonify({"results": [], "message": "No products found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')

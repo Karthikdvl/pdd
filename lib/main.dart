@@ -6,7 +6,9 @@ import 'package:ingreskin/adminPages/reviewScreen.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
+import 'package:ingreskin/homeScreenSection/searchpage.dart';
 import 'package:ingreskin/homepage.dart';
+import 'package:ingreskin/profilepage.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart'; // Navigation bar
 import 'package:ingreskin/skinAssesstest/skinpages/page1_personal_details.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import UserSkinData
@@ -42,10 +44,11 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(/*userSkinData: userSkinData*/),
         '/skin-assessment': (context) => PersonalDetailsPage(userSkinData: userSkinData),
-        '/profile': (context) => ProfilePage(user: {}),
+        '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoSearchScreen(),
         '/aiAssistant': (context) => AIassistant(),
+        '/search-results': (context) => SearchResultsPage(),
       },
     );
   }

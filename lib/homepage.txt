@@ -1,53 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
-import 'package:ingreskin/config.dart';
 import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
-import 'package:ingreskin/homeScreenSection/searchpage.dart';
-import 'package:ingreskin/profilepage.dart';
 //import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssessment/skinAssessment.dart';
+import 'package:ingreskin/aiAssistant/consts.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
+
+// void main() {
+//   WidgetsFlutterBinding.ensureInitialized(); // Ensures all bindings are initialized before runApp
+//   Gemini.init(
+//     apiKey: GEMINI_API_KEY, // Replace with your actual API key
+//   );
+//   runApp(MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      //initialRoute: '/home',
       routes: {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) => SkinAssessmentScreen(),
-        '/profile': (context) => ProfilePage(),
+        '/profile': (context) => ProfilePage(user: {}),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoSearchScreen(),
         '/aiAssistant': (context) => AIassistant(),
-        '/search-results': (context) => SearchResultsPage(),
       },
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final TextEditingController _searchController = TextEditingController();
-
-  void _searchProducts() async {
-    final query = _searchController.text.trim();
-    if (query.isNotEmpty) {
-      Navigator.pushNamed(context, '/search-results', arguments: query);
-    }
-  }
-
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic>? user =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Homepage', style: TextStyle(color: Colors.black)),
@@ -74,14 +67,8 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
-                controller: _searchController,
-                onSubmitted: (_) => _searchProducts(),
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.search, color: Colors.grey),
-                    onPressed: _searchProducts,
-                  ),
                   hintText: 'Search products',
                   filled: true,
                   fillColor: Colors.grey[200],
@@ -152,7 +139,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 
-// AdCard Widget remains the same
+
+
+// Ad Card Widget
 class AdCard extends StatelessWidget {
   final String imageUrl;
   final String name;
@@ -209,6 +198,60 @@ class AdCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Additional Pages
+class ProfilePage extends StatelessWidget {
+  final Map<String, dynamic>? user;
+
+  const ProfilePage({Key? key, required this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: const Color(0xFF2B8761),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Name: ${user?['name'] ?? 'N/A'}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Email: ${user?['email'] ?? 'N/A'}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2B8761),
+              ),
+              child: const Text('Back to Home'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class HistoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('History')),
+      body: Center(child: Text('History Page')),
     );
   }
 }
