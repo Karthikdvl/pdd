@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
         '/aiAssistant': (context) => AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
         '/get-started': (context) => GetStartedPage(),
+        
       },
     );
   }
