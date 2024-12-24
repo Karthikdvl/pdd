@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/adminPages/adminDashboard.dart';
+import 'package:ingreskin/adminPages/admin_forgot_password.dart';
 import 'package:ingreskin/adminPages/feedbackscreen.dart';
 import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
@@ -9,46 +11,55 @@ import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/homeScreenSection/searchpage.dart';
 import 'package:ingreskin/homepage.dart';
 import 'package:ingreskin/profilepage.dart';
-import 'package:ingreskin/skinAssesstest/skinpages/navi.dart'; // Navigation bar
+import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/page1_personal_details.dart';
-import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import UserSkinData
-import 'dart:async'; // Import for Timer
-import 'getstartedpage.dart'; // Import your GetStartedPage file
+import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
+import 'dart:async';
+import 'getstartedpage.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:ingreskin/aiAssistant/consts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Gemini.init(
-    apiKey: GEMINI_API_KEY, // Replace with your actual API key
+    apiKey: GEMINI_API_KEY,
   );
-  runApp(const MyApp());
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
-    // Create a UserSkinData instance for skin assessment
     UserSkinData userSkinData = UserSkinData();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: isLoggedIn ? const DashboardScreen() : const SplashScreen(),
       routes: {
         '/list-products': (context) => const ProductListScreen(),
         '/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
+        '/forgot-password': (context) => const AdminForgotPasswordScreen(),
         '/home': (context) => HomePage(),
-        '/navigation': (context) => NavigationBarPage(/*userSkinData: userSkinData*/),
+        '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) => PersonalDetailsPage(userSkinData: userSkinData),
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoSearchScreen(),
         '/aiAssistant': (context) => AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
+        '/get-started': (context) => GetStartedPage(),
       },
     );
   }
@@ -65,13 +76,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Delay for 3 seconds and navigate to GetStartedPage
-    Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => GetStartedPage()),
-      );
-    });
+    _navigateToNextScreen();
+  }
+
+  Future<void> _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 3));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      Navigator.pushReplacementNamed(context, '/get-started');
+    }
   }
 
   @override
@@ -84,11 +101,10 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo with rounded corners
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    'assets/logo1.png', // Replace with actual logo path
+                    'assets/logo1.png',
                     height: 120,
                     width: 120,
                     fit: BoxFit.cover,
@@ -101,9 +117,7 @@ class _SplashScreenState extends State<SplashScreen> {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 40.0),
-              child: CircularProgressIndicator(
-                color: Colors.grey,
-              ),
+              child: CircularProgressIndicator(color: Colors.grey),
             ),
           ),
         ],

@@ -5,10 +5,12 @@ import 'package:ingreskin/adminPages/feedbackscreen.dart';
 import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
 import 'package:ingreskin/adminPages/reviewScreen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-void main() {
-  runApp(const AdminLoginApp());
-}
+import 'package:ingreskin/config.dart';
+import 'package:ingreskin/getstartedpage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminLoginApp extends StatelessWidget {
   const AdminLoginApp({Key? key}) : super(key: key);
@@ -17,24 +19,102 @@ class AdminLoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AdminLoginScreen(),
+      home: const AdminLoginScreen(),
       routes: {
         '/list-products': (context) => const ProductListScreen(),
         '/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
+        '/forgot-password': (context) => const AdminForgotPasswordScreen(),
+        '/get-started': (context) => GetStartedPage(),
       },
     );
   }
 }
 
-class AdminLoginScreen extends StatelessWidget {
+class AdminLoginScreen extends StatefulWidget {
+  const AdminLoginScreen({Key? key}) : super(key: key);
+
+  @override
+  _AdminLoginScreenState createState() => _AdminLoginScreenState();
+}
+
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false; // Track loading state
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showErrorDialog("Please enter both email and password.");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('$BASE_URL/admin/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
+
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['status'] == 'success') {
+        // Save login state
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
+        // Navigate to Dashboard
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        _showErrorDialog(data['message'] ?? 'Login failed. Please try again.');
+      }
+    } catch (e) {
+      _showErrorDialog('An error occurred. Please check your connection.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: const Text('Admin Login', style: TextStyle(color: Colors.white)),
+        title: const Text('Admin Login'),
         centerTitle: true,
       ),
       body: Padding(
@@ -42,78 +122,54 @@ class AdminLoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Login',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your Email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
+            _buildTextField(
+              controller: _emailController,
+              label: 'Email',
+              obscureText: false,
             ),
             const SizedBox(height: 16),
-            TextField(
+            _buildTextField(
+              controller: _passwordController,
+              label: 'Password',
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your Password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  // Handle forgot password
-                  Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AdminForgotPassword(),
-                          ),
-                        );
-                },
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Handle login
-                Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DashboardScreen(),
-                          ),
-                        );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Text(
-                'Login',
-                style: TextStyle(fontSize: 18,
-                color: Colors.white),
-              ),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text('Login'),
+                  ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
+              child: const Text('Forgot Password?'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required bool obscureText,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
         ),
       ),
     );
