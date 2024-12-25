@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
 import 'page2_skin_type.dart';
  // Import UserSkinData model
-
+ void main() {
+  runApp( SkinAssessmentApp());
+}
 class SkinAssessmentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

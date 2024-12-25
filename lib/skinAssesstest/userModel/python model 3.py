@@ -1,99 +1,113 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, mean_squared_error
-import numpy as np
+import joblib
 
 # Step 1: Load the data
-try:
-    data = pd.read_csv("F:/Android development/cosmetics.csv", encoding="ISO-8859-1")
-except UnicodeDecodeError:
-    data = pd.read_csv("F:/Android development/cosmetics.csv", encoding="latin1")
+def load_data(file_path):
+    try:
+        return pd.read_csv(file_path, encoding="ISO-8859-1")
+    except UnicodeDecodeError:
+        return pd.read_csv(file_path, encoding="latin1")
 
 # Step 2: Preprocess the data
-# Handle missing values
-data.fillna('', inplace=True)
+def preprocess_data(data):
+    # Handle missing values
+    data.fillna('', inplace=True)
 
-# Encode categorical columns
-label_encoder = LabelEncoder()
-data['Brand'] = label_encoder.fit_transform(data['Brand'])
-data['Name'] = label_encoder.fit_transform(data['Name'])
+    # Encode categorical columns (Brand and Name)
+    brand_encoder = LabelEncoder()
+    name_encoder = LabelEncoder()
 
-# Features and target
-features = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive', 'Price']
-X = data[features]
+    data['Brand'] = brand_encoder.fit_transform(data['Brand'])
+    data['Name'] = name_encoder.fit_transform(data['Name'])
 
-# Check if target is continuous or categorical
-if data['Rank'].dtype in [np.float64, np.int64]:  # Continuous target
-    is_continuous = True
-    y = data['Rank']
-else:  # Categorical target
-    is_continuous = False
-    y = data['Rank']
+    return data, brand_encoder, name_encoder
 
-# Step 3: Split the dataset
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Step 3: Train the model
+def train_model(data):
+    features = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
+    X = data[features]
 
-# Train the model based on the target type
-if is_continuous:
-    model = RandomForestRegressor(random_state=42)
-    model.fit(X_train, y_train)
-    # Evaluate regression model
-    y_pred = model.predict(X_test)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    print(f"Regression Model RMSE: {rmse:.2f}")
-else:
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    # Evaluate classification model
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Classification Model Accuracy: {accuracy * 100:.2f}%")
+    # Check if the target ('Rank') is continuous or categorical
+    if np.issubdtype(data['Rank'].dtype, np.number):
+        is_continuous = True
+        y = data['Rank']
+    else:
+        is_continuous = False
+        y = data['Rank']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    if is_continuous:
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        print(f"Regression Model RMSE: {rmse:.2f}")
+    else:
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f"Classification Model Accuracy: {accuracy * 100:.2f}%")
+
+    return model, is_continuous
+
+# Step 4: Save the model and encoders
+def save_artifacts(model, brand_encoder, name_encoder, is_continuous):
+    joblib.dump(model, 'model.pkl')
+    joblib.dump(brand_encoder, 'brand_encoder.pkl')
+    joblib.dump(name_encoder, 'name_encoder.pkl')
+    joblib.dump(is_continuous, 'is_continuous.pkl')
+    print("Artifacts saved successfully.")
 
 # Step 5: Recommend products
-# Updated recommend_products function
-def recommend_products(user_data, top_n=10):
-    # Convert user input into a DataFrame
+def preprocess_input(skin_type_selections, skin_sensitivity):
+    skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
+    user_data = {stype: int(stype in skin_type_selections) for stype in skin_types}
+    user_data['Sensitive'] = 1 if skin_sensitivity.lower() == 'sensitive' else 0
+    return user_data
+
+def recommend_products(data, skin_type_selections, skin_sensitivity, top_n=10):
+    user_data = preprocess_input(skin_type_selections, skin_sensitivity)
     user_features = pd.DataFrame([user_data])
-    
+
+    is_continuous = joblib.load('is_continuous.pkl')
+    model = joblib.load('model.pkl')
+    brand_encoder = joblib.load('brand_encoder.pkl')
+    name_encoder = joblib.load('name_encoder.pkl')
+
     if is_continuous:
-        # Predict regression target
-        predicted_rank = model.predict(user_features)
-        data['PredictedRank'] = model.predict(X)
-        recommended = data.sort_values(by='PredictedRank', ascending=True).head(top_n)  # Lower rank is better
+        data['PredictedRank'] = model.predict(data[['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']])
+        recommended = data.sort_values(by='PredictedRank', ascending=True).head(top_n)
     else:
-        # Predict probabilities for classification
-        if hasattr(model, 'predict_proba'):
-            predictions = model.predict_proba(user_features)
-            data['Probability'] = predictions[:, 1]  # Assuming binary classification
-            recommended = data.sort_values(by='Probability', ascending=False).head(top_n)
-        else:
-            # Fallback: Sort by actual Rank
-            recommended = data.sort_values(by='Rank', ascending=False).head(top_n)
-    
-    # Decode the 'Brand' and 'Name' columns
-    recommended['Brand'] = recommended['Brand'].apply(lambda x: label_encoder.inverse_transform([x])[0])
-    recommended['Name'] = recommended['Name'].apply(lambda x: label_encoder.inverse_transform([x])[0])
-    
+        probabilities = model.predict_proba(user_features)[0]
+        data['Score'] = model.predict_proba(data[['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']])[:, 1]
+        recommended = data.sort_values(by='Score', ascending=False).head(top_n)
+
+    recommended['Brand'] = brand_encoder.inverse_transform(recommended['Brand'])
+    recommended['Name'] = name_encoder.inverse_transform(recommended['Name'])
+
     return recommended[['id', 'Label', 'Brand', 'Name', 'Price', 'Rank']]
 
+# Main Execution
+if __name__ == '__main__':
+    file_path = "F:/Android development/cosmetics.csv"
+    data = load_data(file_path)
+    data, brand_encoder, name_encoder = preprocess_data(data)
+    model, is_continuous = train_model(data)
+    save_artifacts(model, brand_encoder, name_encoder, is_continuous)
 
-# Example user data (replace with actual user data from UserSkinData)
-user_data = {
-    'Combination': 1,  # 1 if suitable, 0 otherwise
-    'Dry': 0,
-    'Normal': 1,
-    'Oily': 0,
-    'Sensitive': 1,
-    'Price': 500  # Example price range
-}
+    # Example user input
+    user_skin_types = ['Combination', 'Normal']
+    user_skin_sensitivity = 'Sensitive'
 
-# Get recommendations
-recommendations = recommend_products(user_data)
-print("Recommended Products:")
-pd.set_option('display.max_columns', None)  # Show all columns
-pd.set_option('display.max_rows', None)     # Show all rows
-pd.set_option('display.width', 1000)        # Adjust width to avoid wrapping
-pd.set_option('display.colheader_justify', 'center')  # Align headers
-print(recommendations)
+    recommendations = recommend_products(data, user_skin_types, user_skin_sensitivity, top_n=10)
+    print("Recommended Products:")
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 1000)
+    print(recommendations)

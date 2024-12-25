@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/page3_skin_sensitivity.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
 
- // Import UserSkinData model
-
 class SkinTypePage extends StatefulWidget {
   final UserSkinData userSkinData; // Accept UserSkinData as a parameter
 
@@ -14,14 +12,33 @@ class SkinTypePage extends StatefulWidget {
 }
 
 class _SkinTypePageState extends State<SkinTypePage> {
-  String? _selectedSkinType;
+  Map<String, int> _skinTypeSelections = {
+    'Dry': 0,
+    'Oily': 0,
+    'Combination': 0,
+    'Normal': 0,
+  };
 
-  final List<Map<String, String>> skinTypes = [
-    {'type': 'Dry', 'image': 'assets/logo1.png'},
-    {'type': 'Oily', 'image': 'assets/logo1.png'},
-    {'type': 'Combination', 'image': 'assets/logo1.png'},
-    {'type': 'Normal', 'image': 'assets/logo1.png'},
-  ];
+  void _toggleSelection(String type) {
+    setState(() {
+      // Count currently selected types
+      int selectedCount = _skinTypeSelections.values.where((value) => value == 1).length;
+
+      // Allow selection of up to 2 types
+      if (_skinTypeSelections[type] == 1) {
+        // If already selected, deselect
+        _skinTypeSelections[type] = 0;
+      } else if (selectedCount < 2) {
+        // Select if fewer than 2 types are selected
+        _skinTypeSelections[type] = 1;
+      } else {
+        // Show an error if the user tries to select more than 2
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You can select up to two skin types.')),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +58,7 @@ class _SkinTypePageState extends State<SkinTypePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('What is your skin type?', style: TextStyle(fontSize: 16)),
+            Text('select any two:', style: TextStyle(fontSize: 16)),
             SizedBox(height: 20),
             Expanded(
               child: GridView.builder(
@@ -49,19 +67,16 @@ class _SkinTypePageState extends State<SkinTypePage> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: skinTypes.length,
+                itemCount: _skinTypeSelections.keys.length,
                 itemBuilder: (context, index) {
+                  String skinType = _skinTypeSelections.keys.elementAt(index);
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedSkinType = skinTypes[index]['type'];
-                      });
-                    },
+                    onTap: () => _toggleSelection(skinType),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: _selectedSkinType == skinTypes[index]['type']
+                          color: _skinTypeSelections[skinType] == 1
                               ? Colors.teal
                               : Colors.grey,
                           width: 5,
@@ -71,15 +86,15 @@ class _SkinTypePageState extends State<SkinTypePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            skinTypes[index]['image']!,
+                            'assets/logo1.png',
                             height: 80,
                             width: 80,
                           ),
                           SizedBox(height: 8),
                           Text(
-                            skinTypes[index]['type']!,
+                            skinType,
                             style: TextStyle(
-                              color: _selectedSkinType == skinTypes[index]['type']
+                              color: _skinTypeSelections[skinType] == 1
                                   ? Colors.teal
                                   : Colors.black,
                             ),
@@ -99,9 +114,10 @@ class _SkinTypePageState extends State<SkinTypePage> {
                   backgroundColor: Colors.blue,
                 ),
                 onPressed: () {
-                  if (_selectedSkinType != null) {
-                    // Save the selected skin type into UserSkinData
-                    widget.userSkinData.skinType = _selectedSkinType;
+                  // Check if at least one skin type is selected
+                  if (_skinTypeSelections.values.contains(1)) {
+                    // Save the selected skin types into UserSkinData
+                    widget.userSkinData.skinTypeSelections = Map.from(_skinTypeSelections);
 
                     // Navigate to the next page
                     Navigator.push(
@@ -113,9 +129,9 @@ class _SkinTypePageState extends State<SkinTypePage> {
                       ),
                     );
                   } else {
-                    // Show an error message if no option is selected
+                    // Show an error message if no options are selected
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please select your skin type.')),
+                      SnackBar(content: Text('Please select at least one skin type.')),
                     );
                   }
                 },

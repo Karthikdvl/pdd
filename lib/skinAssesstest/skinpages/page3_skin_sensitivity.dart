@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/page4_skin_concerns.dart';
-import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
- // Import the UserSkinData model
+import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import the correct file
 
 class SkinSensitivityPage extends StatefulWidget {
-  final UserSkinData userSkinData; // Accept the UserSkinData instance
+  final UserSkinData userSkinData;
 
   const SkinSensitivityPage({Key? key, required this.userSkinData}) : super(key: key);
 
@@ -13,19 +12,27 @@ class SkinSensitivityPage extends StatefulWidget {
 }
 
 class _SkinSensitivityPageState extends State<SkinSensitivityPage> {
-  String? _selectedSensitivity;
+  SkinSensitivity? _isSensitive = SkinSensitivity.NotSensitive; // Use the SkinSensitivity enum from userdatamodel.dart
 
   final List<Map<String, String>> sensitivityOptions = [
     {'label': 'Not Sensitive', 'image': 'assets/logo1.png'},
-    {'label': 'Mildly Sensitive', 'image': 'assets/logo1.png'},
-    {'label': 'Very Sensitive', 'image': 'assets/logo1.png'},
+    {'label': 'Sensitive', 'image': 'assets/logo1.png'},
   ];
+
+  void _updateSensitivity(int index) {
+    setState(() {
+      _isSensitive = SkinSensitivity.values[index]; // Use the SkinSensitivity enum
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Skin Sensitivity'),
+        title: Text(
+          'Skin Sensitivity',
+          style: TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -43,9 +50,7 @@ class _SkinSensitivityPageState extends State<SkinSensitivityPage> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _selectedSensitivity = sensitivityOptions[index]['label'];
-                      });
+                      _updateSensitivity(index);
                     },
                     child: Container(
                       margin: EdgeInsets.only(bottom: 10),
@@ -53,8 +58,7 @@ class _SkinSensitivityPageState extends State<SkinSensitivityPage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: _selectedSensitivity ==
-                                  sensitivityOptions[index]['label']
+                          color: _isSensitive == SkinSensitivity.values[index]
                               ? Colors.teal
                               : Colors.grey,
                           width: 5,
@@ -84,28 +88,21 @@ class _SkinSensitivityPageState extends State<SkinSensitivityPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue, // Set the button color
+                  backgroundColor: Colors.blue,
                 ),
                 onPressed: () {
-                  if (_selectedSensitivity != null) {
-                    // Update the UserSkinData object with the selected sensitivity
-                    widget.userSkinData.skinSensitivity = _selectedSensitivity;
+                  // Save the sensitivity enum value
+                  widget.userSkinData.skinSensitivity = _isSensitive;
 
-                    // Navigate to the next page with the updated UserSkinData
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SkinConcernsPage(
-                          userSkinData: widget.userSkinData,
-                        ),
+                  // Navigate to the next page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SkinConcernsPage(
+                        userSkinData: widget.userSkinData,
                       ),
-                    );
-                  } else {
-                    // Show an error if no selection is made
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please select your skin sensitivity.')),
-                    );
-                  }
+                    ),
+                  );
                 },
                 child: Text('Next →'),
               ),

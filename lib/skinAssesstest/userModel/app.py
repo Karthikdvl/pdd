@@ -12,7 +12,6 @@ import os
 from werkzeug.utils import secure_filename
 
 import base64
-import os
 import uuid
 from flask_restful import Api
 from datetime import datetime, timedelta
@@ -132,10 +131,34 @@ class Product(db.Model):
             "brand": self.brand,
             "name": self.name,
             "price": self.price,
-            "rank": self.rank
+            "rank": self.rank,
+            
         }
 
+
+# class Product(db.Model):
+#     __tablename__ = 'cosmetics'  # Match the name of your table
+#     id = db.Column(db.Integer, primary_key=True)
+#     label = db.Column(db.String(100))
+#     brand = db.Column(db.String(100))
+#     name = db.Column(db.String(100))
+#     price = db.Column(db.Float)
+#     rank = db.Column(db.Float)
+#     ingredients = db.Column(db.Text)  # Add the ingredients field
+
+#     def to_dict(self):
+#         return {
+#             "id": self.id,
+#             "label": self.label,
+#             "brand": self.brand,
+#             "name": self.name,
+#             "price": self.price,
+#             "rank": self.rank,
+#             "ingredients": self.ingredients  # Include ingredients in the response
+#         }
 # Route for searching products in the database
+
+
 @app.route('/search', methods=['GET'])
 def search_products():
     query = request.args.get('query', '').lower()
@@ -161,7 +184,35 @@ def search_products():
         return jsonify({"results": [], "message": "No products found"}), 404
 
 
-#CORS(app, supports_credentials=True)  # Enable CORS for frontend integration
+@app.route('/productlist', methods=['GET'])
+def get_products():
+    try:
+        # Query all products
+        products = Product.query.all()
+        results = [product.to_dict() for product in products]
+        return jsonify({"results": results}), 200
+    except Exception as e:
+        return jsonify({"message": "Failed to fetch products", "error": str(e)}), 500
+    
+    response = jsonify({"results": results})
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response, 200
+
+@app.route('/products/<int:product_id>', methods=['GET'])
+def get_product_details(product_id):
+    try:
+        # Query the product by its ID
+        product = Product.query.get(product_id)
+        if product:
+            # Convert the product to a dictionary and return it
+            return jsonify(product.to_dict()), 200
+        else:
+            # If product not found, return a 404 error
+            return jsonify({"message": "Product not found"}), 404
+    except Exception as e:
+        # Handle any unexpected errors
+        return jsonify({"message": "Failed to fetch product details", "error": str(e)}), 500
+
 
 # Admin model
 class Admin(db.Model):
@@ -227,5 +278,6 @@ def admin_status():
     return jsonify({'logged_in': False}), 200
 
 
+
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')

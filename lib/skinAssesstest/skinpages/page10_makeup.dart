@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/productRecommentpage.dart';
+import 'package:ingreskin/skinAssesstest/skinpages/summarypage.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import RecommendedProductsPage
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class MakeupPage extends StatefulWidget {
   final UserSkinData userSkinData; // Accept UserSkinData instance
@@ -26,7 +29,7 @@ class _MakeupPageState extends State<MakeupPage> {
     });
   }
 
-  void _onFinish() {
+  void _onFinish() async {
     if (_selectedAnswer == null) {
       // Show a message if no option is selected
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,14 +47,57 @@ class _MakeupPageState extends State<MakeupPage> {
     // Debugging or optional log
     print('Makeup Preference: ${widget.userSkinData.wearsMakeup}');
 
-    // Navigate to the RecommendedProductsPage, passing updated UserSkinData
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RecommendedProductsPage(userSkinData: widget.userSkinData),
+    // Send the data to Python backend for recommendations
+    await sendUserDataToPython(
+      widget.userSkinData.skinTypeSelections!, // Pass skinTypeSelections map
+      widget.userSkinData.skinSensitivity!.index,   // Convert SkinSensitivity enum to int (0 or 1)
+    );
+  }
+
+  // Function to send user data to Python backend and get recommendations
+ Future<void> sendUserDataToPython(Map<String, int> skinTypeSelections, int skinSensitivity) async {
+  final url = Uri.parse('http://192.168.73.146:5000/recommend'); // Python server URL
+  final headers = {'Content-Type': 'application/json'};
+  final body = json.encode({
+    'skinTypeSelections': skinTypeSelections,  // Send the Map<String, int>
+    'skinSensitivity': skinSensitivity,        // Send the skinSensitivity (int: 0 or 1)
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      final recommendations = responseData['recommendations'];
+
+      print('Recommendations: $recommendations');
+      
+      // Navigate to RecommendedProductsPage with recommendations
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecommendedProductsPage(recommendations: recommendations),  // Pass recommendations
+        ),
+      );
+    } else {
+      print('Failed to fetch recommendations: ${response.statusCode} ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to fetch recommendations. Please try again later.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (e) {
+    print('Error fetching recommendations: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('An error occurred. Please check your connection.'),
+        backgroundColor: Colors.red,
       ),
     );
   }
+}
 
   @override
   Widget build(BuildContext context) {

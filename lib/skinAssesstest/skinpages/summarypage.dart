@@ -38,6 +38,10 @@ class SummaryPage extends StatelessWidget {
             SizedBox(height: 10),
             Text('Makeup Routine: ${userSkinData.wearsMakeup ?? "Not Provided"}'),
             SizedBox(height: 10),
+            Text('skin Type Selections: ${userSkinData.skinTypeSelections ?? "Not Provided"}'),
+            SizedBox(height: 10),
+            Text('skin Sensitivity: ${userSkinData.skinSensitivity ?? "Not Provided"}'),
+            SizedBox(height: 10),
             // You can add more fields here if necessary
           ],
         ),

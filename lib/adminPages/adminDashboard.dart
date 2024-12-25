@@ -7,9 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:ingreskin/config.dart';
 import 'package:ingreskin/getstartedpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// void main() {
-//   runApp(const MyApp());
-// }
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       home: const DashboardScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
-        '/list-products': (context) => const ProductListScreen(),
+        '/list-products': (context) =>  ProductListScreen(),
         '/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),

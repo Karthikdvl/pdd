@@ -4,6 +4,7 @@ import 'package:ingreskin/adminPages/admin_forgot_password.dart';
 import 'package:ingreskin/adminPages/feedbackscreen.dart';
 import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
+import 'package:ingreskin/adminPages/productdetaliscreen.dart';
 import 'package:ingreskin/adminPages/reviewScreen.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/homeScreenSection/imageSearch.dart';
@@ -44,8 +45,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: isLoggedIn ? const DashboardScreen() : const SplashScreen(),
+      //     onGenerateRoute: (settings) {
+      //   // Check if the route is for ProductDetailScreen
+      //   if (settings.name == '/productDetail') {
+      //     final product = settings.arguments;  // Get the 'product' from arguments
+      //     return MaterialPageRoute(
+      //       builder: (context) => ProductDetailScreen(product: product),
+      //     );
+      //   }
+
+      //   // Add other route handling as needed
+      //   return null;
+      // },
       routes: {
-        '/list-products': (context) => const ProductListScreen(),
+        '/list-products': (context) => ProductListScreen(),
         '/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
@@ -53,14 +66,20 @@ class MyApp extends StatelessWidget {
         '/forgot-password': (context) => const AdminForgotPasswordScreen(),
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => PersonalDetailsPage(userSkinData: userSkinData),
+        '/skin-assessment': (context) =>
+            PersonalDetailsPage(userSkinData: userSkinData),
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => PhotoSearchScreen(),
         '/aiAssistant': (context) => AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
         '/get-started': (context) => GetStartedPage(),
-        
+        //'/productDetail': (context) => ProductDetailScreen(),
+        '/productDetail': (context) {
+          final productId =
+              ModalRoute.of(context)!.settings.arguments as String;
+          return ProductDetailScreen(productId: productId);
+        },
       },
     );
   }

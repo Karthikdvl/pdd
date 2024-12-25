@@ -21,7 +21,7 @@ class AdminLoginApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const AdminLoginScreen(),
       routes: {
-        '/list-products': (context) => const ProductListScreen(),
+        '/list-products': (context) =>  ProductListScreen(),
         '/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
