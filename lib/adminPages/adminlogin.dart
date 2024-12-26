@@ -22,7 +22,7 @@ class AdminLoginApp extends StatelessWidget {
       home: const AdminLoginScreen(),
       routes: {
         '/list-products': (context) =>  ProductListScreen(),
-        '/edit-products': (context) => const ProductEditScreen(),
+        //'/edit-products': (context) => const ProductEditScreen(),
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
         '/dashboard': (context) => const DashboardScreen(),

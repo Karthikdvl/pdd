@@ -59,7 +59,18 @@ class MyApp extends StatelessWidget {
       // },
       routes: {
         '/list-products': (context) => ProductListScreen(),
-        '/edit-products': (context) => const ProductEditScreen(),
+        //'/edit-products': (context) => const ProductEditScreen(),
+        '/edit-products': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          print('Arguments received: $args');
+          if (args == null || args is! Map<String, dynamic>) {
+            return Scaffold(
+              body: Center(child: Text('Invalid or missing arguments')),
+            );
+          }
+          return ProductEditScreen(productId: args['productId']);
+        },
+
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
         '/dashboard': (context) => const DashboardScreen(),
@@ -76,8 +87,8 @@ class MyApp extends StatelessWidget {
         '/get-started': (context) => GetStartedPage(),
         //'/productDetail': (context) => ProductDetailScreen(),
         '/productDetail': (context) {
-          final productId =
-              ModalRoute.of(context)!.settings.arguments as String;
+          final productId = ModalRoute.of(context)!.settings.arguments
+              as int; // Changed to int
           return ProductDetailScreen(productId: productId);
         },
       },

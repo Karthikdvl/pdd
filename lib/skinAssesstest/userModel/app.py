@@ -114,6 +114,72 @@ def login():
     }), 200
 
 
+# Admin model
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
+
+
+# Route: Admin Register
+@app.route('/admin/register', methods=['POST'])
+def admin_register():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'message': 'Email and password are required', 'status': 'error'}), 400
+
+    existing_admin = Admin.query.filter_by(email=email).first()
+    if existing_admin:
+        return jsonify({'message': 'Admin with this email already exists', 'status': 'error'}), 409
+
+    new_admin = Admin(email=email)
+    new_admin.set_password(password)
+    db.session.add(new_admin)
+    db.session.commit()
+
+    return jsonify({'message': 'Admin registered successfully', 'status': 'success'}), 201
+
+
+# Route: Admin Login
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    admin = Admin.query.filter_by(email=email).first()
+    if admin and admin.check_password(password):
+        session['admin_id'] = admin.id
+        return jsonify({'message': 'Login successful', 'status': 'success'}), 200
+    return jsonify({'message': 'Invalid email or password', 'status': 'error'}), 401
+
+
+# Route: Admin Logout
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin_id', None)
+    return jsonify({'message': 'Logout successful', 'status': 'success'}), 200
+
+
+# Route: Check Login Status
+@app.route('/admin/status', methods=['GET'])
+def admin_status():
+    if 'admin_id' in session:
+        return jsonify({'logged_in': True}), 200
+    return jsonify({'logged_in': False}), 200
+
+
+# --------------------------------------------------------------------------------------------------------
+
 # Product Data Model
 class Product(db.Model):
     __tablename__ = 'cosmetics'  # Match the name of your table
@@ -213,70 +279,29 @@ def get_product_details(product_id):
         # Handle any unexpected errors
         return jsonify({"message": "Failed to fetch product details", "error": str(e)}), 500
 
+@app.route('/products/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    try:
+        # Get the product by ID
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({"message": "Product not found"}), 404
+        
+        # Parse the incoming data
+        data = request.get_json()
+        product.label = data.get('label', product.label)
+        product.brand = data.get('brand', product.brand)
+        product.name = data.get('name', product.name)
+        product.price = data.get('price', product.price)
+        product.rank = data.get('rank', product.rank)
 
-# Admin model
-class Admin(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+        # Save changes to the database
+        db.session.commit()
+        return jsonify({"message": "Product updated successfully", "product": product.to_dict()}), 200
 
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-
-# Route: Admin Register
-@app.route('/admin/register', methods=['POST'])
-def admin_register():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({'message': 'Email and password are required', 'status': 'error'}), 400
-
-    existing_admin = Admin.query.filter_by(email=email).first()
-    if existing_admin:
-        return jsonify({'message': 'Admin with this email already exists', 'status': 'error'}), 409
-
-    new_admin = Admin(email=email)
-    new_admin.set_password(password)
-    db.session.add(new_admin)
-    db.session.commit()
-
-    return jsonify({'message': 'Admin registered successfully', 'status': 'success'}), 201
-
-
-# Route: Admin Login
-@app.route('/admin/login', methods=['POST'])
-def admin_login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    admin = Admin.query.filter_by(email=email).first()
-    if admin and admin.check_password(password):
-        session['admin_id'] = admin.id
-        return jsonify({'message': 'Login successful', 'status': 'success'}), 200
-    return jsonify({'message': 'Invalid email or password', 'status': 'error'}), 401
-
-
-# Route: Admin Logout
-@app.route('/admin/logout', methods=['POST'])
-def admin_logout():
-    session.pop('admin_id', None)
-    return jsonify({'message': 'Logout successful', 'status': 'success'}), 200
-
-
-# Route: Check Login Status
-@app.route('/admin/status', methods=['GET'])
-def admin_status():
-    if 'admin_id' in session:
-        return jsonify({'logged_in': True}), 200
-    return jsonify({'logged_in': False}), 200
-
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to update product", "error": str(e)}), 500
 
 
 if __name__ == '__main__':

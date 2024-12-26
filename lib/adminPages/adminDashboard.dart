@@ -7,9 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:ingreskin/config.dart';
 import 'package:ingreskin/getstartedpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-void main() {
-  runApp(const MyApp());
-}
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -26,7 +26,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: {
         '/list-products': (context) =>  ProductListScreen(),
-        '/edit-products': (context) => const ProductEditScreen(),
+        //'/edit-products': (context) =>  ProductEditScreen(),
+        '/edit-products': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          return ProductEditScreen(productId: args['productId']);
+        },
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
         '/get-started': (context) => GetStartedPage(),

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Photo Search',
+      title: 'Ingredient extractor',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
@@ -64,7 +64,7 @@ class _PhotoSearchScreenState extends State<PhotoSearchScreen> {
                     },
                   ),
                   const Text(
-                    'Photo Search',
+                    'Ingredient extractor',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -109,7 +109,7 @@ class _PhotoSearchScreenState extends State<PhotoSearchScreen> {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Drop your image here, or browse',
+                              'upload or take image to extract ingredients',
                               style: TextStyle(
                                 color: Colors.grey,
                               ),

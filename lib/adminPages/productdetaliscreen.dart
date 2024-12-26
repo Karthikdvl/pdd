@@ -1,3 +1,4 @@
+// ProductDetailScreen.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,10 +6,9 @@ import 'dart:convert';
 import 'package:ingreskin/config.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final String productId;
+  final int productId;  // Changed to int
 
-  // Constructor receives 'productId'
-  ProductDetailScreen({required this.productId});
+  ProductDetailScreen({required this.productId});  // Changed to int
 
   @override
   _ProductDetailScreenState createState() => _ProductDetailScreenState();
@@ -22,13 +22,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    fetchProductDetails(); // Fetch details when the screen loads
+    fetchProductDetails();
   }
 
   Future<void> fetchProductDetails() async {
     try {
       final response = await http.get(
-        Uri.parse('$BASE_URL/products/${widget.productId}'),
+        Uri.parse('$BASE_URL/products/${widget.productId}'),  // No toString() needed now
       );
 
       if (response.statusCode == 200) {
@@ -91,7 +91,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Rank: ${productDetails?['rank'] ?? 'N/A'}',
+                            'Label: ${productDetails?['label'] ?? 'N/A'}',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[700],
@@ -99,7 +99,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Ingredients: ${productDetails?['ingredients'] ?? 'N/A'}',
+                            'Price: ${productDetails?['price'] ?? 'N/A'}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Rank: ${productDetails?['rank'] ?? 'N/A'}',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[700],
