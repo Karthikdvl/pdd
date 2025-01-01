@@ -20,6 +20,13 @@ from textblob import TextBlob
 import pymysql
 pymysql.install_as_MySQLdb()
 
+from werkzeug.utils import secure_filename
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r"C:/Program Files/Tesseract-OCR/tesseract.exe"  # Update path as per your system
+from PIL import Image
+import cv2
+import numpy as np
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/skindatabase'
@@ -362,7 +369,62 @@ def recommend_products():
             "status": "error",
             "message": str(e)
         }), 500
+
+import logging
+import re 
+
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+    
+    image_file = request.files['image']
+    
+    if image_file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file.filename)
+    image_file.save(file_path)
+
+    try:
+        image = Image.open(file_path)
+        extracted_text = pytesseract.image_to_string(image)
         
+        # Look for ingredients section
+        ingredients_text = ""
+        lines = extracted_text.split('\n')
+        found_ingredients = False
         
+        for line in lines:
+            # Check for ingredients header
+            if re.search(r'ingredients?[:]*', line.lower()):
+                found_ingredients = True
+                continue
+                
+            # Collect ingredients until we hit another section or empty lines
+            if found_ingredients:
+                if line.strip() and not line.lower().endswith(':') and not re.match(r'^[A-Z\s]+:', line):
+                    ingredients_text += line.strip() + '\n'
+                elif not line.strip():
+                    continue
+                else:
+                    break
+        
+        if not ingredients_text:
+            return jsonify({'error': 'No ingredients found in image'}), 404
+
+        # Clean up the ingredients text
+        ingredients_text = "ingredients:\n" + ingredients_text.strip()
+        
+        return jsonify({'extracted_text': ingredients_text}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

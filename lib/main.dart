@@ -10,6 +10,7 @@ import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/homeScreenSection/searchpage.dart';
+import 'package:ingreskin/homeScreenSection/testextractor.dart';
 import 'package:ingreskin/homepage.dart';
 import 'package:ingreskin/profilepage.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
@@ -81,7 +82,7 @@ class MyApp extends StatelessWidget {
             PersonalDetailsPage(userSkinData: userSkinData),
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
-        '/photo': (context) => PhotoSearchScreen(),
+        '/photo': (context) => TextExtractorScreen(),
         '/aiAssistant': (context) => AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
         '/get-started': (context) => GetStartedPage(),
