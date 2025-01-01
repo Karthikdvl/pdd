@@ -1,0 +1,227 @@
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Ingredient Extractor',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: const PhotoSearchScreen(),
+    );
+  }
+}
+
+class PhotoSearchScreen extends StatefulWidget {
+  const PhotoSearchScreen({super.key});
+
+  @override
+  State<PhotoSearchScreen> createState() => _PhotoSearchScreenState();
+}
+
+class _PhotoSearchScreenState extends State<PhotoSearchScreen> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+  String extractedText = "";
+  bool isLoading = false;
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+        extractedText = ""; // Reset extracted text
+      });
+      await _processImageForText();
+    }
+  }
+
+  Future<void> _processImageForText() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final inputImage = InputImage.fromFile(_image!);
+    final textRecognizer = TextRecognizer();
+    try {
+      final RecognizedText recognizedText =
+          await textRecognizer.processImage(inputImage);
+      setState(() {
+        extractedText = recognizedText.text;
+      });
+      _verifyIngredients(extractedText);
+    } catch (e) {
+      setState(() {
+        extractedText = "Error processing image.";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+      textRecognizer.close();
+    }
+  }
+
+  void _verifyIngredients(String text) {
+    // Example: Check if any harmful ingredients are found
+    const harmfulIngredients = ['paraben', 'sulfate', 'alcohol'];
+    bool containsHarmful = harmfulIngredients.any((ingredient) =>
+        text.toLowerCase().contains(ingredient.toLowerCase()));
+
+    String resultMessage = containsHarmful
+        ? "Caution: Harmful ingredients detected!"
+        : "Safe: No harmful ingredients detected.";
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Ingredient Analysis"),
+        content: Text(resultMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Text(
+                    'Ingredient Extractor',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Upload or Capture Photos',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () => _pickImage(ImageSource.gallery),
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      style: BorderStyle.solid,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _image == null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image,
+                              size: 48,
+                              color: Colors.blue.shade300,
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Upload or capture an image to extract ingredients',
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.camera),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Capture'),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery),
+                    icon: const Icon(Icons.photo_library),
+                    label: const Text('Gallery'),
+                  ),
+                ],
+              ),
+              if (isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (extractedText.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    'Extracted Text:\n$extractedText',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: const Text('Apply'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

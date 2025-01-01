@@ -303,6 +303,66 @@ def update_product(product_id):
         db.session.rollback()
         return jsonify({"message": "Failed to update product", "error": str(e)}), 500
 
+# ---------------------------------------------------------------------------------------
 
+@app.route('/recommend', methods=['POST'])
+def recommend_products():
+    try:
+        data = request.get_json()
+        skin_type_selections = data.get('skinTypeSelections', {})
+        skin_sensitivity = data.get('skinSensitivity')  # 0 for NotSensitive, 1 for Sensitive
+
+        # Determine the primary skin type from selections
+        skin_type = max(skin_type_selections.items(), key=lambda x: x[1])[0] if skin_type_selections else None
+
+        # Base query
+        query = Product.query
+
+        # Filter based on skin type
+        if skin_type:
+            if skin_type == 'Dry':
+                query = query.filter(Product.label.ilike('%moisturizer%'))
+            elif skin_type == 'Oily':
+                query = query.filter(Product.label.ilike('%cleanser%'))
+            elif skin_type == 'Combination':
+                query = query.filter(
+                    (Product.label.ilike('%moisturizer%')) |
+                    (Product.label.ilike('%cleanser%'))
+                )
+            elif skin_type == 'Normal':
+                # For normal skin, include a variety of recommended products
+                query = query.filter(
+                    (Product.label.ilike('%vitamin c%')) |
+                    (Product.label.ilike('%face wash%')) |
+                    (Product.label.ilike('%Sun protect%')) |
+                    (Product.label.ilike('%cleanser%')) |
+                    (Product.label.ilike('%serum%')) |
+                    (Product.label.ilike('%Treatment%'))
+                )
+
+        # Filter based on sensitivity
+        if skin_sensitivity == 1:  # Sensitive
+            query = query.filter(Product.rank >= 4.0)
+
+        # Get recommendations and ensure a good mix of products
+        recommended_products = query.order_by(
+            func.random()  # Randomize to get a mix of different product types
+        ).limit(20).all()
+        
+        # Convert to list of dictionaries
+        recommendations = [product.to_dict() for product in recommended_products]
+        
+        return jsonify({
+            "status": "success",
+            "recommendations": recommendations
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+        
+        
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
