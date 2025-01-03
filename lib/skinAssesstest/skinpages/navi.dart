@@ -26,7 +26,7 @@ class NavigationBarPage extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Select an option from the menu',
+                '',
                 style: TextStyle(fontSize: 18),
               ),
             ),
@@ -57,11 +57,11 @@ class NavigationBar extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'User Name',
+                  'karthik',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'user@example.com',
+                  'karthik@gmail.com',
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],

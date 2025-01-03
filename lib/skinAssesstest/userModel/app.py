@@ -27,6 +27,9 @@ from PIL import Image
 import cv2
 import numpy as np
 
+import smtplib
+import random
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/skindatabase'
@@ -46,42 +49,110 @@ def allowed_file(filename):
 # Define the allowed extensions for file uploads if needed
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
-# Define the User model for the `register` table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
 
+otp_store = {}
+
+@app.route('/send-otp', methods=['POST'])
+def send_otp():
+    try:
+        data = request.get_json()  # Use get_json() for better handling of JSON requests
+        email = data.get('email')
+
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+
+        # Generate a random 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        otp_store[email] = otp
+
+        # SMTP server configuration
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = "dvlkarthik123@gmail.com"  # Replace with your email
+        sender_password = "veij nqen btom gxph" # Replace with your app password
+
+        # Email content
+        subject = "Your One-Time OTP Code for Verification"
+        body = f"""
+        Hi there,
+        
+        Thank you for choosing to verify your account with us. Below is your one-time password (OTP) to complete the verification process:
+        
+        Your OTP code: {otp}
+        
+        This code is valid for the next 10 minutes, so please enter it soon to complete your registration.
+        
+        If you didn't request this OTP or need any assistance, feel free to contact us at [Your Support Email/Contact].
+        
+        Thank you for your trust, and welcome to [Your Company Name]!
+        
+        Best regards,
+        [Your Company Name]
+        [Your Website URL]
+        [Your Support Email/Contact]
+        """
+        message = f"Subject: {subject}\n\n{body}"
+
+
+        # Sending the email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, email, message)
+
+        return jsonify({"message": "OTP sent successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# Route for verifying OTP
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    try:
+        data = request.json
+        email = data.get('email')
+        otp = data.get('otp')
+
+        if not email or not otp:
+            return jsonify({"error": "Email and OTP are required"}), 400
+
+        stored_otp = otp_store.get(email)
+        if stored_otp and stored_otp == otp:
+            del otp_store[email]  # Remove OTP after successful verification
+            return jsonify({"message": "OTP verified successfully"}), 200
+        else:
+            return jsonify({"error": "Invalid OTP"}), 400
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Route for user registration
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.json  # Expecting JSON data
+    data = request.json
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
     confirm_password = data.get('confirm_password')
 
-    # Validation checks
     if not all([name, email, password, confirm_password]):
         return jsonify({'message': 'All fields are required!'}), 400
 
     if password != confirm_password:
         return jsonify({'message': 'Passwords do not match!'}), 400
 
-    # Check if the email is already registered
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({'message': 'Email already registered!'}), 400
 
-    # Hash the password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    # Create a new user instance
     new_user = User(name=name, email=email, password_hash=hashed_password)
 
-    # Add the new user to the database
     try:
         db.session.add(new_user)
         db.session.commit()
@@ -89,7 +160,8 @@ def register():
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'An error occurred during registration.', 'error': str(e)}), 500
-    
+
+
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
@@ -425,6 +497,8 @@ def upload_image():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

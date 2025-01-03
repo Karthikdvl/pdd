@@ -10,7 +10,6 @@ import 'package:ingreskin/homeScreenSection/searchpage.dart';
 import 'package:ingreskin/homeScreenSection/testextractor.dart';
 import 'package:ingreskin/profilepage.dart';
 //import 'package:ingreskin/skinAssessment/navigationbar.dart';
-import 'package:ingreskin/skinAssessment/skinAssessment.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 
 class MyApp extends StatelessWidget {
@@ -21,7 +20,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
-        '/skin-assessment': (context) => SkinAssessmentScreen(),
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => TextExtractorScreen(),

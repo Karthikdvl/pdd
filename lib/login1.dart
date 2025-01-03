@@ -5,7 +5,6 @@ import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 import 'forgot_password.dart';
 import 'homepage.dart';
 //import 'skinAssessment/navigationbar.dart';
-import 'skinAssessment/skinAssessment.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 

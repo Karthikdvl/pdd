@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ingreskin/config.dart';
+import 'package:ingreskin/homeScreenSection/analysisPage.dart';
 
 class TextExtractorScreen extends StatefulWidget {
   const TextExtractorScreen({super.key});
@@ -55,7 +56,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
         setState(() {
           extractedText = jsonResponse['extracted_text'];
         });
-        
+
         // Navigate to results screen
         Navigator.push(
           context,
@@ -111,7 +112,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Upload Section
               const Text(
                 'Upload Photos',
@@ -121,7 +122,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Image Preview
               GestureDetector(
                 onTap: () => _showImageSourceDialog(),
@@ -160,7 +161,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
                         ),
                 ),
               ),
-              
+
               // Bottom Buttons
               Expanded(
                 child: Align(
@@ -298,6 +299,26 @@ class ResultsScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AnalysisPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: const Text('Analyze'),
+              ),
             ],
           ),
         ),
@@ -305,3 +326,19 @@ class ResultsScreen extends StatelessWidget {
     );
   }
 }
+
+// class AnalysisPage extends StatelessWidget {
+//   const AnalysisPage({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Analysis'),
+//       ),
+//       body: const Center(
+//         child: Text('Analysis functionality coming soon!'),
+//       ),
+//     );
+//   }
+// }

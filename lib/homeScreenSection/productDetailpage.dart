@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -65,7 +65,7 @@ class ProductDetailPage extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Text(
-                  'Skin screen',
+                  'Sun screen',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -204,10 +204,10 @@ class ProductDetailPage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('view analysis >'),
-                      ),
+                      // TextButton(
+                      //   onPressed: () {},
+                      //   child: const Text('view analysis >'),
+                      // ),
                     ],
                   ),
                   const SizedBox(height: 8),

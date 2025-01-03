@@ -28,13 +28,13 @@ class _SkinTypePageState extends State<SkinTypePage> {
       if (_skinTypeSelections[type] == 1) {
         // If already selected, deselect
         _skinTypeSelections[type] = 0;
-      } else if (selectedCount < 2) {
+      } else if (selectedCount < 1) {
         // Select if fewer than 2 types are selected
         _skinTypeSelections[type] = 1;
       } else {
         // Show an error if the user tries to select more than 2
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You can select up to two skin types.')),
+          SnackBar(content: Text('You can select only one skin types.')),
         );
       }
     });
@@ -58,7 +58,7 @@ class _SkinTypePageState extends State<SkinTypePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('What is your skin type?', style: TextStyle(fontSize: 16)),
-            Text('select any two:', style: TextStyle(fontSize: 16)),
+            //Text('select any two:', style: TextStyle(fontSize: 16)),
             SizedBox(height: 20),
             Expanded(
               child: GridView.builder(

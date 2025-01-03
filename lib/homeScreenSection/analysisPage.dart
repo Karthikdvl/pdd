@@ -154,12 +154,12 @@ class AnalysisPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Implement chat functionality
-        },
-        child: const Icon(Icons.chat_bubble_outline),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     // Implement chat functionality
+      //   },
+      //   child: const Icon(Icons.chat_bubble_outline),
+      // ),
     );
   }
 }

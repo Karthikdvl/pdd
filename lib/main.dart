@@ -7,7 +7,7 @@ import 'package:ingreskin/adminPages/productListScreen.dart';
 import 'package:ingreskin/adminPages/productdetaliscreen.dart';
 import 'package:ingreskin/adminPages/reviewScreen.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
-import 'package:ingreskin/homeScreenSection/imageSearch.dart';
+//import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/homeScreenSection/searchpage.dart';
 import 'package:ingreskin/homeScreenSection/testextractor.dart';
