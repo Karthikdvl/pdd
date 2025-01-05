@@ -45,19 +45,8 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: isLoggedIn ? const DashboardScreen() : const SplashScreen(),
-      //     onGenerateRoute: (settings) {
-      //   // Check if the route is for ProductDetailScreen
-      //   if (settings.name == '/productDetail') {
-      //     final product = settings.arguments;  // Get the 'product' from arguments
-      //     return MaterialPageRoute(
-      //       builder: (context) => ProductDetailScreen(product: product),
-      //     );
-      //   }
+      home: isLoggedIn ?  HomePage() : const SplashScreen(),
 
-      //   // Add other route handling as needed
-      //   return null;
-      // },
       routes: {
         '/list-products': (context) => ProductListScreen(),
         //'/edit-products': (context) => const ProductEditScreen(),
@@ -74,7 +63,7 @@ class MyApp extends StatelessWidget {
 
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
+        //'/dashboard': (context) => const DashboardScreen(),
         '/forgot-password': (context) => const AdminForgotPasswordScreen(),
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
@@ -109,6 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _navigateToNextScreen();
+    
   }
 
   Future<void> _navigateToNextScreen() async {

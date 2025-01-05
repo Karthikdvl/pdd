@@ -18,6 +18,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
   final ImagePicker _picker = ImagePicker();
   bool isLoading = false;
   String? extractedText;
+  Map<String, dynamic>? analysisResult;
 
   Future<void> _pickImage(ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
@@ -57,32 +58,60 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
           extractedText = jsonResponse['extracted_text'];
         });
 
-        // Navigate to results screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ResultsScreen(extractedText: extractedText!),
-          ),
-        );
+        // Automatically analyze the ingredients after extraction
+        await _analyzeIngredients(extractedText!);
       }
     } catch (e) {
-      String errorMessage = 'Failed to upload image';
-      if (e is http.Response) {
-        try {
-          final responseJson = json.decode(e.body);
-          errorMessage = responseJson['error'] ?? errorMessage;
-        } catch (_) {}
-      } else {
-        errorMessage = e.toString();
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      _showErrorSnackBar('Failed to upload image');
     } finally {
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  Future<void> _analyzeIngredients(String ingredientsText) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('$BASE_URL/analyze'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'ingredients': ingredientsText.split(',').map((e) => e.trim()).toList(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          analysisResult = json.decode(response.body);
+        });
+
+        // Navigate to the analysis screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnalysisPage(result: analysisResult!),
+          ),
+        );
+      } else {
+        _showErrorSnackBar('Failed to analyze ingredients');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error analyzing ingredients: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -103,7 +132,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Text(
-                    'Ingredient extractor',
+                    'Ingredient Extractor',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -207,7 +236,7 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text('Extract'),
+                            : const Text('Extract & Analyze'),
                       ),
                     ],
                   ),
@@ -250,95 +279,3 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
     );
   }
 }
-
-class ResultsScreen extends StatelessWidget {
-  final String extractedText;
-
-  const ResultsScreen({Key? key, required this.extractedText}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Extracted Ingredients'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Identified Ingredients',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      extractedText,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AnalysisPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                child: const Text('Analyze'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// class AnalysisPage extends StatelessWidget {
-//   const AnalysisPage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Analysis'),
-//       ),
-//       body: const Center(
-//         child: Text('Analysis functionality coming soon!'),
-//       ),
-//     );
-//   }
-// }

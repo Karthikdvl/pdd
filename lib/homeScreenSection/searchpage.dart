@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:ingreskin/config.dart';
 import 'package:ingreskin/homeScreenSection/productDetailpage.dart';
 
-void main() {
-  runApp(MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   @override

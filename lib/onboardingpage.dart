@@ -30,12 +30,12 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   // Methods for handling button presses
-  void _onAdminLoginPressed() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AdminLoginScreen()),
-    );
-  }
+  // void _onAdminLoginPressed() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => AdminLoginScreen()),
+  //   );
+  // }
 
   void _onLoginPressed() {
     Navigator.push(
@@ -75,29 +75,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 37,
-                  top: 421,
-                  child: ElevatedButton(
-                    onPressed: _onAdminLoginPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF4AA6F2),
-                      fixedSize: Size(340, 55),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text(
-                      'Admin login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   left: 37,
+                //   top: 421,
+                //   child: ElevatedButton(
+                //     onPressed: _onAdminLoginPressed,
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Color(0xFF4AA6F2),
+                //       fixedSize: Size(340, 55),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(20),
+                //       ),
+                //     ),
+                //     child: const Text(
+                //       'Admin login',
+                //       style: TextStyle(
+                //         color: Colors.white,
+                //         fontSize: 24,
+                //         fontFamily: 'Inter',
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 Positioned(
                   left: 37,
                   top: 490,

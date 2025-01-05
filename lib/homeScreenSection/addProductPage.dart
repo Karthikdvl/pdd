@@ -1,9 +1,6 @@
-// homeScreenSection/addProductPage.dart
 import 'package:flutter/material.dart';
-import 'package:ingreskin/homeScreenSection/models/productItem.dart';
-import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
+import 'package:ingreskin/homeScreenSection/productExpirytracker.dart'; // Adjust the import path if necessary
 import 'package:intl/intl.dart';
-//import 'package:ingreskin/models/product_item.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({Key? key}) : super(key: key);
@@ -20,6 +17,13 @@ class _AddProductPageState extends State<AddProductPage> {
   DateTime? _expiryDate;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _brandController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -32,6 +36,7 @@ class _AddProductPageState extends State<AddProductPage> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _nameController,
@@ -43,6 +48,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _brandController,
                 decoration: const InputDecoration(labelText: 'Brand'),
@@ -80,6 +86,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -107,23 +114,36 @@ class _AddProductPageState extends State<AddProductPage> {
                 ],
               ),
               const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate() &&
-                      _openedDate != null &&
-                      _expiryDate != null) {
-                    Navigator.pop(
-                      context,
-                      ProductItem(
-                        name: _nameController.text,
-                        brand: _brandController.text,
-                        openedDate: _openedDate!,
-                        expiryDate: _expiryDate!,
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Add Product'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        _openedDate != null &&
+                        _expiryDate != null) {
+                      Navigator.pop(
+                        context,
+                        ProductItem(
+                          name: _nameController.text,
+                          brand: _brandController.text,
+                          openedDate: _openedDate!,
+                          expiryDate: _expiryDate!,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please fill all fields and select dates.'),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 33, 139, 225), // Button background color
+                  ),
+                  child: const Text('Add Product'),
+                  
+                ),
               ),
             ],
           ),

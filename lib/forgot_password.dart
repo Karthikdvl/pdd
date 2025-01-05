@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:ingreskin/config.dart';
 
-// void main() {
-//   runApp(const MyApp());
-// }
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -20,9 +23,7 @@ class MyApp extends StatelessWidget {
         ),
         fontFamily: 'Gabarito',
       ),
-      home: const Scaffold(
-        body: ForgotPasswordPage(),
-      ),
+      home: const ForgotPasswordPage(),
     );
   }
 }
@@ -37,6 +38,9 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
   bool _isEmailSent = false;
@@ -44,6 +48,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   void dispose() {
     emailController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -55,12 +61,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       });
 
       try {
-        // Simulate API call
+        // Simulate API call for email verification
         await Future.delayed(const Duration(seconds: 2));
-        
-        // Add your actual password reset logic here
         print('Sending reset instructions to: ${emailController.text}');
-        
         setState(() {
           _isEmailSent = true;
         });
@@ -75,6 +78,77 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       }
     }
   }
+
+ Future<void> _editPassword() async {
+  final newPassword = newPasswordController.text;
+  final confirmPassword = confirmPasswordController.text;
+
+  if (newPassword.isEmpty || confirmPassword.isEmpty) {
+    setState(() {
+      _errorMessage = 'Both fields are required';
+    });
+    return;
+  }
+
+  if (newPassword != confirmPassword) {
+    setState(() {
+      _errorMessage = 'Passwords do not match';
+    });
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+  });
+
+  try {
+    const url = '$BASE_URL/api/edit-password'; // API endpoint
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': emailController.text,
+        'new_password': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Password updated successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); // Navigate back to login page
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      final error = jsonDecode(response.body)['message'];
+      setState(() {
+        _errorMessage = error ?? 'Failed to update password';
+      });
+    }
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'An error occurred. Please try again.';
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -106,16 +180,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'No worries! Enter your email address below and we will send you a code to reset password.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF475569),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
                     const SizedBox(height: 32),
                     if (_errorMessage != null)
                       Padding(
@@ -126,104 +190,37 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Email',
-                          style: TextStyle(
-                            color: Color(0xFF1E293B),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value?.isEmpty ?? true) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value!)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Enter your email',
-                            hintStyle: const TextStyle(
-                              color: Color(0xFF94A3B8),
-                              fontSize: 14,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0), width: 1.5),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0), width: 1.5),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFF2B8761), width: 1.5),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide:
-                                  const BorderSide(color: Colors.red, width: 1.5),
-                            ),
-                          ),
-                        ),
-                      ],
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value!)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your email',
+                        filled: true,
+                      ),
                     ),
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: _isLoading ? null : _sendResetInstructions,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2B8761),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
                       child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             )
-                          : const Text(
-                              'Send Reset Instructions',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                          : const Text('Send Reset Instructions'),
                     ),
                   ] else ...[
-                    // Success state UI
-                    const Icon(
-                      Icons.check_circle_outline,
-                      color: Color(0xFF2B8761),
-                      size: 64,
-                    ),
-                    const SizedBox(height: 24),
                     const Text(
-                      'Reset Instructions Sent!',
+                      'Set New Password',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF1E293B),
@@ -231,36 +228,42 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'We have sent reset instructions to ${emailController.text}. Please check your email.',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Color(0xFF475569),
-                        fontSize: 14,
+                    const SizedBox(height: 16),
+                    if (_errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    TextFormField(
+                      controller: newPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'New Password',
+                        hintText: 'Enter your new password',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        hintText: 'Confirm your new password',
                       ),
                     ),
                     const SizedBox(height: 32),
                     ElevatedButton(
-                      onPressed: () {
-                        // Navigate back to login page
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2B8761),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Back to Login',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      onPressed: _isLoading ? null : _editPassword,
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : const Text('Update Password'),
                     ),
                   ],
                 ],

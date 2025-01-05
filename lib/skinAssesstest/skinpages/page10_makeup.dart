@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/config.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/productRecommentpage.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/summarypage.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import RecommendedProductsPage
@@ -56,7 +57,7 @@ class _MakeupPageState extends State<MakeupPage> {
 
   // Function to send user data to Python backend and get recommendations
  Future<void> sendUserDataToPython(Map<String, int> skinTypeSelections, int skinSensitivity) async {
-  final url = Uri.parse('http://192.168.73.146:5000/recommend'); // Python server URL
+  final url = Uri.parse('$BASE_URL/recommend'); // Python server URL
   final headers = {'Content-Type': 'application/json'};
   final body = json.encode({
     'skinTypeSelections': skinTypeSelections,  // Send the Map<String, int>

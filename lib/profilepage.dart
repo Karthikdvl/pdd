@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -29,70 +29,164 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all saved preferences
-    Navigator.pushReplacementNamed(context, '/get-started'); // Navigate to login
+    try {
+      final response = await http.post(
+        Uri.parse('$BASE_URL/logout'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        Navigator.pushReplacementNamed(context, '/get-started');
+      } else {
+        _showErrorDialog('Failed to logout. Please try again.');
+      }
+    } catch (e) {
+      _showErrorDialog('An error occurred. Please check your connection.');
+    }
   }
 
-  void _resetPassword() {
-    //Navigator.pushNamed(context, '/reset-password');
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateTo(String route) {
+    Navigator.pushNamed(context, route);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: const Color(0xFF2B8761),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous page
-          },
-        ),
-      ),
-      body: Center(
+      backgroundColor: const Color(0xFFF7F7F7),
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Name: $_name',
-              style: const TextStyle(fontSize: 18),
+            const SizedBox(height: 16), // Space at the top
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context), // Navigate back
+                ),
+                const Text(
+                  'Profile',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Email: $_email',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _resetPassword,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2B8761),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  Divider(thickness: 1),
+                  SizedBox(height: 16),
+                ],
               ),
-              child: const Text('Reset Password'),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _logout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                color: Color(0xFFEDE7F6),
               ),
-              child: const Text('Logout'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Name: $_name',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Email: $_email',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2B8761),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: [
+                  _buildListItem(
+                    icon: Icons.edit,
+                    title: 'Edit Profile',
+                    onTap: () => _navigateTo('/edit-profile'),
+                  ),
+                  _buildListItem(
+                    icon: Icons.lock,
+                    title: 'Change Password',
+                    onTap: () => _navigateTo('/reset-password'),
+                  ),
+                  _buildListItem(
+                    icon: Icons.help,
+                    title: 'Help',
+                    onTap: () => _navigateTo('/help'),
+                  ),
+                  _buildListItem(
+                    icon: Icons.settings,
+                    title: 'Settings',
+                    onTap: () => _navigateTo('/settings'),
+                  ),
+                  _buildListItem(
+                    icon: Icons.logout,
+                    title: 'Log out',
+                    onTap: _logout,
+                  ),
+                ],
               ),
-              child: const Text('Back to Home'),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildListItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: const Color(0xFFEDE7F6),
+        child: Icon(
+          icon,
+          color: const Color(0xFF6200EA),
+        ),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+      onTap: onTap,
     );
   }
 }

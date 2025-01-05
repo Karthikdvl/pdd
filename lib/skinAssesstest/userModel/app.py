@@ -30,6 +30,8 @@ import numpy as np
 import smtplib
 import random
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/skindatabase'
@@ -162,10 +164,29 @@ def register():
         return jsonify({'message': 'An error occurred during registration.', 'error': str(e)}), 500
 
 
+
+@app.route('/api/edit-password', methods=['POST'])
+def edit_password():
+    data = request.json
+    email = data.get('email')
+    new_password = data.get('new_password')
+
+    if not email or not new_password:
+        return jsonify({'message': 'Email and new password are required'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Generate a bcrypt hash for the new password
+    user.password_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    db.session.commit()
+    return jsonify({'message': 'Password updated successfully'}), 200
+
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json  # Expecting JSON data
+    data = request.json
     email = data.get('email')
     password = data.get('password')
 
@@ -183,15 +204,27 @@ def login():
         return jsonify({'message': 'Invalid email or password!'}), 401
 
     # Successful login
+    session['user_id'] = user.id
+    session['email'] = user.email
     return jsonify({
         'message': 'Login successful!',
         'user': {
             'id': user.id,
             'name': user.name,
-            'email': user.email
+            'email': user.email,
+            'role': 'user'
         }
     }), 200
 
+    
+@app.route('/logout', methods=['POST'])
+def logout():
+    # Clear the session data
+    session.clear()
+    return jsonify({'message': 'Logout successful!'}), 200
+
+
+#-----------------------------------------------------------------------------
 
 # Admin model
 class Admin(db.Model):
@@ -280,28 +313,6 @@ class Product(db.Model):
             
         }
 
-
-# class Product(db.Model):
-#     __tablename__ = 'cosmetics'  # Match the name of your table
-#     id = db.Column(db.Integer, primary_key=True)
-#     label = db.Column(db.String(100))
-#     brand = db.Column(db.String(100))
-#     name = db.Column(db.String(100))
-#     price = db.Column(db.Float)
-#     rank = db.Column(db.Float)
-#     ingredients = db.Column(db.Text)  # Add the ingredients field
-
-#     def to_dict(self):
-#         return {
-#             "id": self.id,
-#             "label": self.label,
-#             "brand": self.brand,
-#             "name": self.name,
-#             "price": self.price,
-#             "rank": self.rank,
-#             "ingredients": self.ingredients  # Include ingredients in the response
-#         }
-# Route for searching products in the database
 
 
 @app.route('/search', methods=['GET'])
@@ -498,7 +509,92 @@ def upload_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+#-----------------------------------------------------------------------------------------------------------------------
 
+import pandas as pd
+
+# Load clean ingredient list
+clean_ingreds = set()
+
+def load_clean_ingredients():
+    global clean_ingreds
+    try:
+        # Load CSV and ensure column name matches
+        df = pd.read_csv("F:/Android development/skincare_products_clean.csv")
+        print("CSV columns:", df.columns)  # Debugging: print column names
+        clean_ingreds = set(df['clean_ingreds'].str.lower().str.strip())
+        print(f"Loaded {len(clean_ingreds)} clean ingredients.")  # Debugging: print count
+    except Exception as e:
+        print(f"Error loading clean ingredients: {e}")
+
+# Load the ingredient list on startup
+load_clean_ingredients()
+
+@app.route("/analyze", methods=["POST"])
+def analyze_ingredients():
+    try:
+        # Parse the JSON payload
+        data = request.json
+        if not data or "ingredients" not in data:
+            return jsonify({"error": "Missing 'ingredients' field in the request."}), 400
+
+        # Extract and process ingredients
+        ingredients = [ing.lower().strip() for ing in data["ingredients"]]
+        bad = [ing for ing in ingredients if ing in clean_ingreds]
+        clean = [ing for ing in ingredients if ing not in clean_ingreds and ing != ""]
+        na = [ing for ing in ingredients if ing == ""]
+
+        # Prepare the response
+        response = {
+            "clean_ingredients": clean,
+            "bad_ingredients": bad,
+            "not_recognized": na
+        }
+        print("Analysis response:", response)  # Debugging: log response
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error during analysis: {e}")  # Debugging: log errors
+        return jsonify({"error": str(e)}), 500
+
+# ------------------------------------------------------
+
+class ProductTracking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    brand = db.Column(db.String(100), nullable=False)
+    opened_date = db.Column(db.Date, nullable=False)
+    expiry_date = db.Column(db.Date, nullable=False)
+    user_email = db.Column(db.String(120), nullable=False)
+
+@app.route('/add_product_tracking', methods=['POST'])
+def add_product_tracking():
+    data = request.json
     
+    product = ProductTracking(
+        name=data['name'],
+        brand=data['brand'],
+        opened_date=data['opened_date'],
+        expiry_date=data['expiry_date'],
+        user_email=data['user_email']
+    )
+    db.session.add(product)
+    db.session.commit()
+    return jsonify({"message": "Product tracking added successfully!"}), 201
+
+@app.route('/get_product_tracking', methods=['GET'])
+def get_product_tracking():
+    user_email = request.args.get('user_email')
+    products = ProductTracking.query.filter_by(user_email=user_email).all()
+    return jsonify([
+        {
+            "id": p.id,
+            "name": p.name,
+            "brand": p.brand,
+            "opened_date": p.opened_date.strftime('%Y-%m-%d'),
+            "expiry_date": p.expiry_date.strftime('%Y-%m-%d'),
+        } for p in products
+    ])
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
