@@ -7,10 +7,6 @@ import 'dart:convert';
 import 'config.dart'; // Assuming this contains BASE_URL
 import 'forgot_password.dart'; // Your forgot password page
 
-// void main() {
-//   runApp(const MyApp());
-// }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -42,7 +38,7 @@ class MyApp extends StatelessWidget {
           initialRoute: isLoggedIn ? '/home' : '/login',
           routes: {
             '/login': (context) => const LoginPage(),
-            '/home': (context) =>  HomePage(),
+            '/home': (context) => HomePage(),
           },
         );
       },
@@ -118,12 +114,11 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login',
-            style: TextStyle(color: Colors.white)), // Updated text color
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF2B8761),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          // Added for better scrolling
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -132,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40), // Added more space at top
+                  const SizedBox(height: 40),
                   const Text(
                     'Login',
                     textAlign: TextAlign.center,
@@ -176,9 +171,6 @@ class _LoginPageState extends State<LoginPage> {
                       if (value?.isEmpty ?? true) {
                         return 'Please enter your password';
                       }
-                      // if (value!.length < 6) {
-                      //   return 'Password must be at least 6 characters';
-                      // }
                       return null;
                     },
                   ),

@@ -83,7 +83,6 @@ flutter:
     - assets/onboardimage.png
     - assets/vector621.svg
     - assets/vector622.svg
-    - assets/Rectangle568.png
     - assets/Image7.png
     - assets/product_1.png
     - assets/product_2.png
@@ -92,6 +91,36 @@ flutter:
     - assets/product_5.png
     - assets/product_6.png
     - assets/productDetailimage.png
+    - assets/skinimages/combinationskin.png
+    - assets/skinimages/dryskin.png
+    - assets/skinimages/normalskin.png
+    - assets/skinimages/oilyskin.png
+    - assets/skinimages/notsensitive.png
+    - assets/skinimages/sensitive.png
+    - assets/skinimages/acneskin.png
+    - assets/skinimages/darkspots.png
+    - assets/skinimages/dry.png
+    - assets/skinimages/wrinkles.png
+    - assets/skinimages/acnescars.png
+    - assets/skinimages/darkpatches.png
+    - assets/skinimages/oilyface.png
+    - assets/skinimages/steps.png
+    - assets/skinimages/occasionally.png
+    - assets/skinimages/frequently.png
+    - assets/skinimages/rarely.png
+    - assets/skinimages/urban.png
+    - assets/skinimages/rural.png
+    - assets/skinimages/costal.png
+    - assets/skinimages/mountain.png
+    - assets/skinimages/occu.png
+    - assets/skinimages/nomakeup.png
+    - assets/skinimages/makeup.png
+    - assets/ad1.png
+    - assets/ad2.png
+    - assets/ad3.png
+    - assets/ad4.png
+
+
 
 
   fonts:

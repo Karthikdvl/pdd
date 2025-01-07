@@ -19,9 +19,9 @@ class _MakeupPageState extends State<MakeupPage> {
   String? _selectedAnswer;
 
   final List<Map<String, String>> makeupOptions = [
-    {'label': 'Yes', 'image': 'assets/logo1.png'},
-    {'label': 'No', 'image': 'assets/logo1.png'},
-    {'label': 'Occasionally', 'image': 'assets/logo1.png'},
+    {'label': 'Yes', 'image': 'assets/skinimages/makeup.png'},
+    {'label': 'No', 'image': 'assets/skinimages/nomakeup.png'},
+    {'label': 'Occasionally', 'image': 'assets/skinimages/occu.png'},
   ];
 
   void _handleOptionSelection(String label) {
@@ -135,7 +135,7 @@ class _MakeupPageState extends State<MakeupPage> {
                           color: _selectedAnswer == option['label']
                               ? Colors.teal
                               : Colors.grey,
-                          width: 2,
+                          width: 5,
                         ),
                       ),
                       child: Row(

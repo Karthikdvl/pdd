@@ -15,10 +15,10 @@ class _PrimaryEnvironmentPageState extends State<PrimaryEnvironmentPage> {
   String? _selectedEnvironment;
 
   final List<Map<String, String>> environmentOptions = [
-    {'label': 'Urban', 'image': 'assets/logo1.png'},
-    {'label': 'Rural', 'image': 'assets/logo1.png'},
-    {'label': 'Coastal', 'image': 'assets/logo1.png'},
-    {'label': 'Mountainous', 'image': 'assets/logo1.png'},
+    {'label': 'Urban', 'image': 'assets/skinimages/urban.png'},
+    {'label': 'Rural', 'image': 'assets/skinimages/rural.png'},
+    {'label': 'Coastal', 'image': 'assets/skinimages/costal.png'},
+    {'label': 'Mountainous', 'image': 'assets/skinimages/mountain.png'},
   ];
 
   @override

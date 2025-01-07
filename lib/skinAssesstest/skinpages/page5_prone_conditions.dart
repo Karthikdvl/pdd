@@ -16,11 +16,11 @@ class _ProneConditionsPageState extends State<ProneConditionsPage> {
   List<String> _selectedConditions = [];
 
   final List<Map<String, String>> proneOptions = [
-    {'label': 'Breakouts', 'image': 'assets/logo1.png'},
-    {'label': 'Redness', 'image': 'assets/logo1.png'},
-    {'label': 'Dry Patches', 'image': 'assets/logo1.png'},
-    {'label': 'Irritation', 'image': 'assets/logo1.png'},
-    {'label': 'Oily Skin', 'image': 'assets/logo1.png'},
+    {'label': 'Acne Scars', 'image': 'assets/skinimages/acnescars.png'},
+    {'label': 'Redness', 'image': 'assets/skinimages/sensitive.png'},
+    {'label': 'Dry Patches', 'image': 'assets/skinimages/dry.png'},
+    {'label': 'Dark Pathces', 'image': 'assets/skinimages/darkpatches.png'},
+    {'label': 'Oily Skin', 'image': 'assets/skinimages/oilyface.png'},
   ];
 
   void toggleCondition(String condition) {

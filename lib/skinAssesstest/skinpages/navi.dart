@@ -18,21 +18,7 @@ class NavigationBarPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Row(
-        children: [
-          // Navigation Bar
-          NavigationBar(),
-          // Default content when nothing is selected
-          Expanded(
-            child: Center(
-              child: Text(
-                '',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: NavigationBar(),
     );
   }
 }
@@ -41,62 +27,47 @@ class NavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250,
       color: Colors.grey[200],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // User Information Section
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage('assets/logo1.png'), // Replace with your image path
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'karthik',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'karthik@gmail.com',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildMenuButton(
+              context,
+              Icons.home,
+              'Home',
+              '/home',
             ),
-          ),
-          Divider(),
-          // Navigation Buttons
-          buildMenuButton(context, Icons.home, 'Home', '/home'),
-          buildMenuButton(context, Icons.health_and_safety, 'Skin Assessment', '/skin-assessment'),
-        ],
+            SizedBox(height: 20), // Space between buttons
+            buildMenuButton(
+              context,
+              Icons.health_and_safety,
+              'Skin Assessment',
+              '/skin-assessment',
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // Helper method to build navigation buttons
   Widget buildMenuButton(BuildContext context, IconData icon, String label, String routeName) {
-    return TextButton.icon(
-      onPressed: () {
-        if (routeName == '/') {
-          Navigator.popUntil(context, (route) => route.isFirst); // Navigate to HomePage
-        } else {
-          Navigator.of(context).pushNamed(routeName); // Navigate to specified route
-        }
-      },
-      icon: Icon(icon, color: Colors.grey[800]),
-      label: Text(
-        label,
-        style: TextStyle(color: Colors.black),
-      ),
-      style: ButtonStyle(
-        alignment: Alignment.centerLeft,
-        padding: WidgetStateProperty.all<EdgeInsets>(
-          EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+    return ListTile(
+      leading: Container(
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.purple[50],
+          shape: BoxShape.circle,
         ),
+        child: Icon(icon, color: Colors.purple),
       ),
+      title: Text(label, style: TextStyle(color: Colors.black, fontSize: 16)),
+      trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+      onTap: () {
+        Navigator.of(context).pushNamed(routeName);
+      },
     );
   }
 }

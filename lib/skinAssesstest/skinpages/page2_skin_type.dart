@@ -19,22 +19,30 @@ class _SkinTypePageState extends State<SkinTypePage> {
     'Normal': 0,
   };
 
+  // Map to associate skin types with images
+  final Map<String, String> _skinTypeImages = {
+    'Dry': 'assets/skinimages/dryskin.png',
+    'Oily': 'assets/skinimages/oilyskin.png',
+    'Combination': 'assets/skinimages/combinationskin.png',
+    'Normal': 'assets/skinimages/normalskin.png',
+  };
+
   void _toggleSelection(String type) {
     setState(() {
       // Count currently selected types
       int selectedCount = _skinTypeSelections.values.where((value) => value == 1).length;
 
-      // Allow selection of up to 2 types
+      // Allow selection of only 1 type
       if (_skinTypeSelections[type] == 1) {
         // If already selected, deselect
         _skinTypeSelections[type] = 0;
       } else if (selectedCount < 1) {
-        // Select if fewer than 2 types are selected
+        // Select if no type is selected
         _skinTypeSelections[type] = 1;
       } else {
-        // Show an error if the user tries to select more than 2
+        // Show an error if the user tries to select more than 1
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You can select only one skin types.')),
+          SnackBar(content: Text('You can select only one skin type.')),
         );
       }
     });
@@ -58,7 +66,6 @@ class _SkinTypePageState extends State<SkinTypePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('What is your skin type?', style: TextStyle(fontSize: 16)),
-            //Text('select any two:', style: TextStyle(fontSize: 16)),
             SizedBox(height: 20),
             Expanded(
               child: GridView.builder(
@@ -86,7 +93,7 @@ class _SkinTypePageState extends State<SkinTypePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            'assets/logo1.png',
+                            _skinTypeImages[skinType]!,
                             height: 80,
                             width: 80,
                           ),

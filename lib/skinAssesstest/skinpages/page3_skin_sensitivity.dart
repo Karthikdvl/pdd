@@ -15,8 +15,8 @@ class _SkinSensitivityPageState extends State<SkinSensitivityPage> {
   SkinSensitivity? _isSensitive = SkinSensitivity.NotSensitive; // Use the SkinSensitivity enum from userdatamodel.dart
 
   final List<Map<String, String>> sensitivityOptions = [
-    {'label': 'Not Sensitive', 'image': 'assets/logo1.png'},
-    {'label': 'Sensitive', 'image': 'assets/logo1.png'},
+    {'label': 'Not Sensitive', 'image': 'assets/skinimages/notsensitive.png'},
+    {'label': 'Sensitive', 'image': 'assets/skinimages/sensitive.png'},
   ];
 
   void _updateSensitivity(int index) {

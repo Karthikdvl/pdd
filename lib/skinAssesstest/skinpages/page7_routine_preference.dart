@@ -15,9 +15,9 @@ class _RoutinePreferencePageState extends State<RoutinePreferencePage> {
   String? _selectedPreference;
 
   final List<Map<String, String>> routineOptions = [
-    {'label': 'Minimal (Quick and Easy)', 'image': 'assets/logo1.png'},
-    {'label': 'Moderate (Few Steps)', 'image': 'assets/logo1.png'},
-    {'label': 'Extensive (Full Routine)', 'image': 'assets/logo1.png'},
+    {'label': 'Minimal (Quick and Easy)', 'image': 'assets/skinimages/steps.png'},
+    {'label': 'Moderate (Few Steps)', 'image': 'assets/skinimages/steps.png'},
+    {'label': 'Extensive (Full Routine)', 'image': 'assets/skinimages/steps.png'},
   ];
 
   @override

@@ -13,11 +13,11 @@ class SkinConcernsPage extends StatefulWidget {
 
 class _SkinConcernsPageState extends State<SkinConcernsPage> {
   final List<Map<String, String>> skinConcerns = [
-    {'label': 'Acne', 'image': 'assets/logo1.png'},
-    {'label': 'Dryness', 'image': 'assets/logo1.png'},
-    {'label': 'Wrinkles', 'image': 'assets/logo1.png'},
-    {'label': 'Dark Spots', 'image': 'assets/logo1.png'},
-    {'label': 'Sensitivity', 'image': 'assets/logo1.png'},
+    {'label': 'Acne', 'image': 'assets/skinimages/acneskin.png'},
+    {'label': 'Dryness', 'image': 'assets/skinimages/dry.png'},
+    {'label': 'Wrinkles', 'image': 'assets/skinimages/wrinkles.png'},
+    {'label': 'Dark Spots', 'image': 'assets/skinimages/darkspots.png'},
+    //{'label': 'Sensitivity', 'image': 'assets/logo1.png'},
   ];
 
   List<String> selectedConcerns = [];

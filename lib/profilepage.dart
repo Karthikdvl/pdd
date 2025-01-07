@@ -13,19 +13,29 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String _name = 'N/A';
   String _email = 'N/A';
+  String _photoUrl = ''; // Placeholder for photo URL
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserDetails();
   }
 
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _name = prefs.getString('name') ?? 'N/A';
-      _email = prefs.getString('email') ?? 'N/A';
-    });
+  Future<void> _loadUserDetails() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final name = prefs.getString('userName') ?? 'N/A';
+      final email = prefs.getString('userEmail') ?? 'N/A';
+      final photoUrl = prefs.getString('photoUrl') ?? '';
+
+      setState(() {
+        _name = name;
+        _email = email;
+        _photoUrl = photoUrl;
+      });
+    } catch (e) {
+      _showErrorDialog('Failed to load user details. Please try again.');
+    }
   }
 
   Future<void> _logout() async {
@@ -90,43 +100,59 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ],
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 8),
-                  Divider(thickness: 1),
-                  SizedBox(height: 16),
-                ],
-              ),
-            ),
+            const SizedBox(height: 16),
+            // Profile Section with Updated Background Color
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(
-                color: Color(0xFFEDE7F6),
+                color: Color.fromARGB(255, 116, 177, 247),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                  top: Radius.circular(30),
+                ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Name: $_name',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.grey[300],
+                    backgroundImage:
+                        _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
+                    child: _photoUrl.isEmpty
+                        ? const Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.grey,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      _name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Changed text color to white
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Email: $_email',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Center(
+                    child: Text(
+                      _email,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white, // Changed text color to white
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 16),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16.0),
@@ -141,24 +167,32 @@ class _ProfilePageState extends State<ProfilePage> {
                     title: 'Change Password',
                     onTap: () => _navigateTo('/reset-password'),
                   ),
-                  _buildListItem(
-                    icon: Icons.help,
-                    title: 'Help',
-                    onTap: () => _navigateTo('/help'),
-                  ),
-                  _buildListItem(
-                    icon: Icons.settings,
-                    title: 'Settings',
-                    onTap: () => _navigateTo('/settings'),
-                  ),
-                  _buildListItem(
-                    icon: Icons.logout,
-                    title: 'Log out',
-                    onTap: _logout,
-                  ),
                 ],
               ),
             ),
+            // Log out button at the bottom
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 249, 83, 83), // Light red color
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  minimumSize: Size(double.infinity, 50), // Full width and taller height
+                ),
+                onPressed: _logout,
+                child: const Text(
+                  'Log out',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20), // Space at the bottom
           ],
         ),
       ),

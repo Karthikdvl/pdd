@@ -16,9 +16,9 @@ class _SunExposurePageState extends State<SunExposurePage> {
   String? _selectedFrequency;
 
   final List<Map<String, String>> exposureOptions = [
-    {'label': 'Rarely (Less than 1 hour)', 'image': 'assets/logo1.png'},
-    {'label': 'Occasionally (1-3 hours)', 'image': 'assets/logo1.png'},
-    {'label': 'Frequently (More than 3 hours)', 'image': 'assets/logo1.png'},
+    {'label': 'Rarely (Less than 1 hour)', 'image': 'assets/skinimages/rarely.png'},
+    {'label': 'Occasionally (1-3 hours)', 'image': 'assets/skinimages/occasionally.png'},
+    {'label': 'Frequently (More than 3 hours)', 'image': 'assets/skinimages/frequently.png'},
   ];
 
   @override

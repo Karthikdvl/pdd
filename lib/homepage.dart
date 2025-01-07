@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
-import 'package:ingreskin/config.dart';
-import 'package:ingreskin/homeScreenSection/imageSearch.dart';
 import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:ingreskin/homeScreenSection/searchpage.dart';
 import 'package:ingreskin/homeScreenSection/testextractor.dart';
 import 'package:ingreskin/profilepage.dart';
-//import 'package:ingreskin/skinAssessment/navigationbar.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/navi.dart';
 
 class MyApp extends StatelessWidget {
@@ -37,12 +36,54 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  String? userName;
+  String? userEmail;
+
+  final PageController _pageController =
+      PageController(); // PageController for PageView
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+    _startAutoScroll(); // Start the auto-scrolling
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? 'User';
+      userEmail = prefs.getString('userEmail') ?? 'No email provided';
+    });
+  }
 
   void _searchProducts() async {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
       Navigator.pushNamed(context, '/search-results', arguments: query);
     }
+  }
+
+  void _startAutoScroll() {
+    _timer = Timer.periodic(Duration(seconds: 7), (timer) {
+      // Changed to 8 seconds
+      if (_pageController.hasClients) {
+        final nextPage = (_pageController.page ?? 0) + 1;
+        _pageController.animateToPage(
+          nextPage.toInt() % 4, // Loop back to the first image after the last
+          duration: Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -61,7 +102,11 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.person, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(
+                context,
+                '/profile',
+                arguments: {'name': userName, 'email': userEmail},
+              );
             },
           ),
         ],
@@ -72,6 +117,23 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                'Welcome, $userName',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 8),
+              // Text(
+              //   'Email: $userEmail',
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     color: Colors.grey[700],
+              //   ),
+              // ),
+              // SizedBox(height: 24),
               TextField(
                 controller: _searchController,
                 onSubmitted: (_) => _searchProducts(),
@@ -100,10 +162,18 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 12),
-              AdCard(
-                imageUrl: 'assets/Rectangle568.png',
-                name: 'Sample Product',
-                description: 'This is a description of the product.',
+              // PageView for Auto-Sliding Ads Section with increased size
+              SizedBox(
+                height: 220, // Increased height for ads cards
+                child: PageView(
+                  controller: _pageController,
+                  children: [
+                    AdImage(imageUrl: 'assets/ad1.png'),
+                    AdImage(imageUrl: 'assets/ad2.png'),
+                    AdImage(imageUrl: 'assets/ad3.png'),
+                    AdImage(imageUrl: 'assets/ad4.png'),
+                  ],
+                ),
               ),
             ],
           ),
@@ -141,7 +211,8 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(context, '/photo');
               break;
             case 3:
-              Navigator.pushNamed(context, '/aiAssistant'); // Navigate to AI Assistant
+              Navigator.pushNamed(
+                  context, '/aiAssistant'); // Navigate to AI Assistant
               break;
           }
         },
@@ -150,63 +221,22 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-
-// AdCard Widget remains the same
-class AdCard extends StatelessWidget {
+// AdImage Widget for Ads
+class AdImage extends StatelessWidget {
   final String imageUrl;
-  final String name;
-  final String description;
 
-  AdCard({
-    required this.imageUrl,
-    required this.name,
-    required this.description,
-  });
+  AdImage({required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      elevation: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-            child: Image.asset(
-              imageUrl,
-              width: double.infinity,
-              height: 150,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2),
+        image: DecorationImage(
+          image: AssetImage(imageUrl),
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

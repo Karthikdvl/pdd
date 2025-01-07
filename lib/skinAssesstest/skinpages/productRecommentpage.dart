@@ -59,23 +59,23 @@ class RecommendedProductsPage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        '\$${product['price'].toString()}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    // Container(
+                                    //   padding: const EdgeInsets.symmetric(
+                                    //     horizontal: 12,
+                                    //     vertical: 6,
+                                    //   ),
+                                    //   decoration: BoxDecoration(
+                                    //     color: Colors.blue,
+                                    //     borderRadius: BorderRadius.circular(20),
+                                    //   ),
+                                    //   // child: Text(
+                                    //   //   '\$${product['price'].toString()}',
+                                    //   //   style: const TextStyle(
+                                    //   //     color: Colors.white,
+                                    //   //     fontWeight: FontWeight.bold,
+                                    //   //   ),
+                                    //   // ),
+                                    // ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -107,6 +107,13 @@ class RecommendedProductsPage extends StatelessWidget {
                 ],
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/home');
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.home, color: Colors.white),
+      ),
     );
   }
 }
