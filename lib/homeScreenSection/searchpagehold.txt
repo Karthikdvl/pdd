@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/home': (context) => HomePage(),
+        '/': (context) => HomePage(),
         '/search': (context) => SearchResultsPage(),
       },
     );
@@ -48,10 +48,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            Future.delayed(Duration.zero, () {
-              _showErrorDialog(context, snapshot.error.toString());
-            });
-            return Container(); // Return an empty container since the dialog is shown
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No products found.'));
           } else {
@@ -129,26 +131,5 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     } catch (e) {
       throw Exception('Error fetching data: $e');
     }
-  }
-
-  void _showErrorDialog(BuildContext context, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text(errorMessage),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.pushNamed(context, '/home'); // Navigate back to the home page
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

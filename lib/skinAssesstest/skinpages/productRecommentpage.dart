@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:ingreskin/homeScreenSection/productDetailpage.dart';
 
-class RecommendedProductsPage extends StatelessWidget {
+class RecommendedProductsPage extends StatefulWidget {
   final List<dynamic> recommendations;
 
   const RecommendedProductsPage({Key? key, required this.recommendations}) : super(key: key);
 
+  @override
+  _RecommendedProductsPageState createState() => _RecommendedProductsPageState();
+}
+
+class _RecommendedProductsPageState extends State<RecommendedProductsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +23,7 @@ class RecommendedProductsPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: recommendations.isEmpty
+      body: widget.recommendations.isEmpty
           ? const Center(
               child: Text('No recommendations available'),
             )
@@ -36,9 +42,9 @@ class RecommendedProductsPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: recommendations.length,
+                      itemCount: widget.recommendations.length,
                       itemBuilder: (context, index) {
-                        final product = recommendations[index];
+                        final product = widget.recommendations[index];
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.only(bottom: 12),
@@ -59,23 +65,6 @@ class RecommendedProductsPage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    // Container(
-                                    //   padding: const EdgeInsets.symmetric(
-                                    //     horizontal: 12,
-                                    //     vertical: 6,
-                                    //   ),
-                                    //   decoration: BoxDecoration(
-                                    //     color: Colors.blue,
-                                    //     borderRadius: BorderRadius.circular(20),
-                                    //   ),
-                                    //   // child: Text(
-                                    //   //   '\$${product['price'].toString()}',
-                                    //   //   style: const TextStyle(
-                                    //   //     color: Colors.white,
-                                    //   //     fontWeight: FontWeight.bold,
-                                    //   //   ),
-                                    //   // ),
-                                    // ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -96,6 +85,28 @@ class RecommendedProductsPage extends StatelessWidget {
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    // Navigate to ProductDetailPage with productId
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductDetailPage(productId: product['id']),
+                                      ),
+                                    );
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      'View Details',
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),

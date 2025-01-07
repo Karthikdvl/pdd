@@ -291,16 +291,17 @@ def admin_status():
 
 
 # --------------------------------------------------------------------------------------------------------
-
 # Product Data Model
 class Product(db.Model):
     __tablename__ = 'cosmetics'  # Match the name of your table
+
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(100))
     brand = db.Column(db.String(100))
     name = db.Column(db.String(100))
     price = db.Column(db.Float)
     rank = db.Column(db.Float)
+    ingredients = db.Column(db.Text)  # Add the ingredients column
 
     def to_dict(self):
         return {
@@ -310,8 +311,18 @@ class Product(db.Model):
             "name": self.name,
             "price": self.price,
             "rank": self.rank,
-            
+            "ingredients": self.ingredients,  # Include ingredients in the dictionary
         }
+
+
+@app.route('/api/product/<int:product_id>', methods=['GET'])
+def get_product_details(product_id):
+    product = Product.query.get(product_id)  # Query the database for the product by ID
+    if product:
+        return jsonify(product.to_dict()), 200  # Return the product data including ingredients
+    else:
+        return jsonify({"error": "Product not found"}), 404
+
 
 
 
@@ -354,20 +365,20 @@ def get_products():
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response, 200
 
-@app.route('/products/<int:product_id>', methods=['GET'])
-def get_product_details(product_id):
-    try:
-        # Query the product by its ID
-        product = Product.query.get(product_id)
-        if product:
-            # Convert the product to a dictionary and return it
-            return jsonify(product.to_dict()), 200
-        else:
-            # If product not found, return a 404 error
-            return jsonify({"message": "Product not found"}), 404
-    except Exception as e:
-        # Handle any unexpected errors
-        return jsonify({"message": "Failed to fetch product details", "error": str(e)}), 500
+# @app.route('/products/<int:product_id>', methods=['GET'])
+# def get_product_details(product_id):
+#     try:
+#         # Query the product by its ID
+#         product = Product.query.get(product_id)
+#         if product:
+#             # Convert the product to a dictionary and return it
+#             return jsonify(product.to_dict()), 200
+#         else:
+#             # If product not found, return a 404 error
+#             return jsonify({"message": "Product not found"}), 404
+#     except Exception as e:
+#         # Handle any unexpected errors
+#         return jsonify({"message": "Failed to fetch product details", "error": str(e)}), 500
 
 @app.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -452,7 +463,7 @@ def recommend_products():
             "status": "error",
             "message": str(e)
         }), 500
-
+#---------------------------------------------------------------------
 import logging
 import re 
 
@@ -671,6 +682,66 @@ def get_product_tracking():
             "expiry_date": p.expiry_date.strftime('%Y-%m-%d'),
         } for p in products
     ])
+#------------------------------------------------------------
+
+
+# # Cosmetics Model
+# class Cosmetic(db.Model):
+#     __tablename__ = 'cosmetics'  # Match the name of your table.
+
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     label = db.Column(db.String(255), nullable=True)
+#     brand = db.Column(db.String(255), nullable=True)
+#     name = db.Column(db.String(255), nullable=True)
+#     price = db.Column(db.Integer, nullable=True)
+#     rank = db.Column(db.Float(precision=2), nullable=True)
+#     ingredients = db.Column(db.Text, nullable=True)
+#     combination = db.Column(db.Integer, nullable=True)
+#     dry = db.Column(db.Integer, nullable=True)
+#     normal = db.Column(db.Integer, nullable=True)
+#     oily = db.Column(db.Integer, nullable=True)
+#     sensitive = db.Column(db.Integer, nullable=True)
+
+#     def to_dict(self):
+#         return {
+#             "id": self.id,
+#             "label": self.label,
+#             "brand": self.brand,
+#             "name": self.name,
+#             "price": self.price,
+#             "rank": self.rank,
+#             "ingredients": self.ingredients,
+#             "combination": self.combination,
+#             "dry": self.dry,
+#             "normal": self.normal,
+#             "oily": self.oily,
+#             "sensitive": self.sensitive,
+#         }
+        
+        
+# @app.route('/api/product/<int:product_id>', methods=['GET'])
+# def product_details(product_id):
+#     with connection.cursor() as cursor:
+#         cursor.execute(
+#             """
+#             SELECT id, 
+#                    Label AS label, 
+#                    Brand AS brand, 
+#                    Name AS name, 
+#                    Price AS price, 
+#                    Rank AS rank, 
+#                    Ingredients AS ingredients 
+#             FROM cosmetics 
+#             WHERE id = %s
+#             """,
+#             (product_id,)
+#         )
+#         product = cursor.fetchone()
+#         if product:
+#             return jsonify(product)
+#         else:
+#             return jsonify({"error": "Product not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
