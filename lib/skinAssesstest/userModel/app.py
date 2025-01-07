@@ -32,6 +32,7 @@ import random
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/skindatabase'
@@ -222,7 +223,6 @@ def logout():
     # Clear the session data
     session.clear()
     return jsonify({'message': 'Logout successful!'}), 200
-
 
 #-----------------------------------------------------------------------------
 
@@ -508,6 +508,82 @@ def upload_image():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+#--------------------------------------------------------------------------------
+from flask import send_from_directory
+
+
+@app.route('/update-profile-name', methods=['POST'])
+def update_profile_name():
+    email = request.form.get('email')
+    name = request.form.get('name')
+
+    if not email or not name:
+        return jsonify({'message': 'Email and name are required!'}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({'message': 'User not found!'}), 404
+
+    user.name = name
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Name updated successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Failed to update name.', 'error': str(e)}), 500
+
+
+
+@app.route('/update-profile-photo', methods=['POST'])
+def update_profile_photo():
+    email = request.form.get('email')
+    if not email:
+        return jsonify({'message': 'Email is required!'}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({'message': 'User not found!'}), 404
+
+    photo = request.files.get('photo')
+    if not photo:
+        return jsonify({'message': 'No photo selected!'}), 400
+
+    filename = f"{user.email}_profile.jpg"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    photo.save(filepath)
+
+    try:
+        db.session.commit()
+        photo_url = f"/{UPLOAD_FOLDER}/{filename}"
+        return jsonify({'success': True, 'photoUrl': photo_url}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Failed to update photo.', 'error': str(e)}), 500
+
+
+@app.route('/get-profile-photo', methods=['GET'])
+def get_profile_photo():
+    email = request.args.get('email')  # Get the email from the query string
+    if email:
+        # Construct the filename (assuming the profile photo is named after the email with .png extension)
+        filename = f"{email}_profile.png"  # Change the extension to .png
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Check if the file exists, and return it; otherwise, return a default image
+        if os.path.exists(file_path):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        else:
+            # Return a default image if the user doesn't have a profile photo
+            return send_from_directory(app.config['UPLOAD_FOLDER'], 'default.png')  # Ensure default is .png
+    else:
+        return jsonify({'error': 'Email is required'}), 400
+
+
     
 #-----------------------------------------------------------------------------------------------------------------------
 

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzData;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -54,7 +55,7 @@ class ProductExpiryTrackerPage extends StatefulWidget {
 
 class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
   final List<ProductItem> _products = [];
-  final String _userEmail = 'abc@example.com';
+  String? _userEmail;
   final String _baseUrl = '$BASE_URL';
   bool _isNotificationsInitialized = false;
 
@@ -62,8 +63,23 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
   void initState() {
     super.initState();
     _initializeNotifications().then((_) {
-      _loadProductTracking();
+      _loadUserEmail().then((_) {
+        if (_userEmail != null) {
+          _loadProductTracking();
+        }
+      });
     });
+  }
+
+  Future<void> _loadUserEmail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _userEmail = prefs.getString('userEmail');
+      });
+    } catch (e) {
+      print('Error loading user email from SharedPreferences: $e');
+    }
   }
 
   Future<void> _initializeNotifications() async {
@@ -189,7 +205,6 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
         }),
       );
 
-      // Log the response status and body
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
@@ -214,7 +229,7 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
       setState(() {
         _products.add(result);
       });
-      _addProductToBackend(result); // Add the product to the backend
+      _addProductToBackend(result);
     }
   }
 

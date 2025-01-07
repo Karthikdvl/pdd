@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ingreskin/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -21,23 +22,65 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadUserDetails();
   }
 
+  // Load user details from shared preferences
   Future<void> _loadUserDetails() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final name = prefs.getString('userName') ?? 'N/A';
       final email = prefs.getString('userEmail') ?? 'N/A';
-      final photoUrl = prefs.getString('photoUrl') ?? '';
 
       setState(() {
         _name = name;
         _email = email;
-        _photoUrl = photoUrl;
       });
+
+      // Fetch the profile photo URL based on email
+      await _fetchProfilePhotoUrl(_email);
     } catch (e) {
       _showErrorDialog('Failed to load user details. Please try again.');
     }
   }
 
+  // Fetch the profile photo URL from the server based on email
+  Future<void> _fetchProfilePhotoUrl(String email) async {
+    try {
+      final uri = Uri.parse('$BASE_URL/get-profile-photo?email=$email');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          // If the response is a URL (not base64 data), use it directly
+          _photoUrl = response.body;  // Assuming the server returns a URL (image path)
+        });
+      } else {
+        // If not found, fallback to the default photo
+        setState(() {
+          _photoUrl = '$BASE_URL/uploads/default.jpg'; // Fallback to default photo URL
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('An error occurred. Please try again.');
+    }
+  }
+
+  // Show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Logout function
   Future<void> _logout() async {
     try {
       final response = await http.post(
@@ -55,26 +98,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       _showErrorDialog('An error occurred. Please check your connection.');
     }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateTo(String route) {
-    Navigator.pushNamed(context, route);
   }
 
   @override
@@ -116,8 +139,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey[300],
-                    backgroundImage:
-                        _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
+                    backgroundImage: _photoUrl.isNotEmpty
+                        ? NetworkImage(_photoUrl)  // Use NetworkImage with the URL
+                        : null, // Use the photoUrl fetched from the server
                     child: _photoUrl.isEmpty
                         ? const Icon(
                             Icons.person,
@@ -160,12 +184,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   _buildListItem(
                     icon: Icons.edit,
                     title: 'Edit Profile',
-                    onTap: () => _navigateTo('/edit-profile'),
+                    onTap: () => Navigator.pushNamed(context, '/edit-profile'),
                   ),
                   _buildListItem(
                     icon: Icons.lock,
                     title: 'Change Password',
-                    onTap: () => _navigateTo('/reset-password'),
+                    onTap: () => Navigator.pushNamed(context, '/reset-password'),
                   ),
                 ],
               ),

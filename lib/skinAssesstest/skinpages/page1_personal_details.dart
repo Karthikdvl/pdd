@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
 import 'page2_skin_type.dart';
- // Import UserSkinData model
-//  void main() {
-//   runApp( SkinAssessmentApp());
-// }
+
+// Main application
 class SkinAssessmentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -18,6 +16,7 @@ class SkinAssessmentApp extends StatelessWidget {
   }
 }
 
+// Personal Details Page
 class PersonalDetailsPage extends StatefulWidget {
   final UserSkinData userSkinData; // Accept UserSkinData as a parameter
 
@@ -48,42 +47,22 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Name Input
-            Text('What is your name?', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: 'Enter Your Name',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-
-            SizedBox(height: 24),
-
             // Age Group Selection
             Text('What is your age group?', style: TextStyle(fontSize: 16)),
             SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                buildAgeButton(0, '<12'),
-                buildAgeButton(1, '12–18'),
-                buildAgeButton(2, '18–25'),
-                buildAgeButton(3, '26–35'),
-                buildAgeButton(4, '36–45'),
-                buildAgeButton(5, '46–55'),
-                buildAgeButton(6, '55+'),
-              ],
+            Expanded(
+              child: ListView(
+                children: [
+                  buildAgeButton(0, '<12'),
+                  buildAgeButton(1, '12–18'),
+                  buildAgeButton(2, '18–25'),
+                  buildAgeButton(3, '26–35'),
+                  buildAgeButton(4, '36–45'),
+                  buildAgeButton(5, '46–55'),
+                  buildAgeButton(6, '55+'),
+                ],
+              ),
             ),
-
-            Spacer(),
-
             // Next Button
             SizedBox(
               width: double.infinity,
@@ -107,7 +86,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                 },
                 child: Text('Next →'),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -115,18 +94,23 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   }
 
   Widget buildAgeButton(int index, String label) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: _selectedAgeGroup == index,
-      onSelected: (selected) {
-        setState(() {
-          _selectedAgeGroup = selected ? index : null;
-        });
-      },
-      selectedColor: Colors.teal,
-      backgroundColor: Colors.grey[200],
-      labelStyle: TextStyle(
-        color: _selectedAgeGroup == index ? Colors.white : Colors.black,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _selectedAgeGroup == index ? Colors.teal : Colors.grey[200],
+            foregroundColor: _selectedAgeGroup == index ? Colors.white : Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+          ),
+          onPressed: () {
+            setState(() {
+              _selectedAgeGroup = index;
+            });
+          },
+          child: Text(label, style: TextStyle(fontSize: 16)),
+        ),
       ),
     );
   }
