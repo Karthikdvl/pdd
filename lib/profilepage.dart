@@ -14,7 +14,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String _name = 'N/A';
   String _email = 'N/A';
-  String _photoUrl = ''; // Placeholder for photo URL
 
   @override
   void initState() {
@@ -33,33 +32,8 @@ class _ProfilePageState extends State<ProfilePage> {
         _name = name;
         _email = email;
       });
-
-      // Fetch the profile photo URL based on email
-      await _fetchProfilePhotoUrl(_email);
     } catch (e) {
       _showErrorDialog('Failed to load user details. Please try again.');
-    }
-  }
-
-  // Fetch the profile photo URL from the server based on email
-  Future<void> _fetchProfilePhotoUrl(String email) async {
-    try {
-      final uri = Uri.parse('$BASE_URL/get-profile-photo?email=$email');
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          // If the response is a URL (not base64 data), use it directly
-          _photoUrl = response.body;  // Assuming the server returns a URL (image path)
-        });
-      } else {
-        // If not found, fallback to the default photo
-        setState(() {
-          _photoUrl = '$BASE_URL/uploads/default.jpg'; // Fallback to default photo URL
-        });
-      }
-    } catch (e) {
-      _showErrorDialog('An error occurred. Please try again.');
     }
   }
 
@@ -136,20 +110,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey[300],
-                    backgroundImage: _photoUrl.isNotEmpty
-                        ? NetworkImage(_photoUrl)  // Use NetworkImage with the URL
-                        : null, // Use the photoUrl fetched from the server
-                    child: _photoUrl.isEmpty
-                        ? const Icon(
-                            Icons.person,
-                            size: 50,
-                            color: Colors.grey,
-                          )
-                        : null,
-                  ),
                   const SizedBox(height: 16),
                   Center(
                     child: Text(
@@ -183,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   _buildListItem(
                     icon: Icons.edit,
-                    title: 'Edit Profile',
+                    title: 'Change Name',
                     onTap: () => Navigator.pushNamed(context, '/edit-profile'),
                   ),
                   _buildListItem(

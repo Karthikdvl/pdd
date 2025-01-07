@@ -538,50 +538,50 @@ def update_profile_name():
 
 
 
-@app.route('/update-profile-photo', methods=['POST'])
-def update_profile_photo():
-    email = request.form.get('email')
-    if not email:
-        return jsonify({'message': 'Email is required!'}), 400
+# @app.route('/update-profile-photo', methods=['POST'])
+# def update_profile_photo():
+#     email = request.form.get('email')
+#     if not email:
+#         return jsonify({'message': 'Email is required!'}), 400
 
-    user = User.query.filter_by(email=email).first()
+#     user = User.query.filter_by(email=email).first()
 
-    if not user:
-        return jsonify({'message': 'User not found!'}), 404
+#     if not user:
+#         return jsonify({'message': 'User not found!'}), 404
 
-    photo = request.files.get('photo')
-    if not photo:
-        return jsonify({'message': 'No photo selected!'}), 400
+#     photo = request.files.get('photo')
+#     if not photo:
+#         return jsonify({'message': 'No photo selected!'}), 400
 
-    filename = f"{user.email}_profile.jpg"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    photo.save(filepath)
+#     filename = f"{user.email}_profile.jpg"
+#     filepath = os.path.join(UPLOAD_FOLDER, filename)
+#     photo.save(filepath)
 
-    try:
-        db.session.commit()
-        photo_url = f"/{UPLOAD_FOLDER}/{filename}"
-        return jsonify({'success': True, 'photoUrl': photo_url}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': 'Failed to update photo.', 'error': str(e)}), 500
+#     try:
+#         db.session.commit()
+#         photo_url = f"/{UPLOAD_FOLDER}/{filename}"
+#         return jsonify({'success': True, 'photoUrl': photo_url}), 200
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({'success': False, 'message': 'Failed to update photo.', 'error': str(e)}), 500
 
 
-@app.route('/get-profile-photo', methods=['GET'])
-def get_profile_photo():
-    email = request.args.get('email')  # Get the email from the query string
-    if email:
-        # Construct the filename (assuming the profile photo is named after the email with .png extension)
-        filename = f"{email}_profile.png"  # Change the extension to .png
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+# @app.route('/get-profile-photo', methods=['GET'])
+# def get_profile_photo():
+#     email = request.args.get('email')  # Get the email from the query string
+#     if email:
+#         # Construct the filename (assuming the profile photo is named after the email with .png extension)
+#         filename = f"{email}_profile.png"  # Change the extension to .png
+#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-        # Check if the file exists, and return it; otherwise, return a default image
-        if os.path.exists(file_path):
-            return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-        else:
-            # Return a default image if the user doesn't have a profile photo
-            return send_from_directory(app.config['UPLOAD_FOLDER'], 'default.png')  # Ensure default is .png
-    else:
-        return jsonify({'error': 'Email is required'}), 400
+#         # Check if the file exists, and return it; otherwise, return a default image
+#         if os.path.exists(file_path):
+#             return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+#         else:
+#             # Return a default image if the user doesn't have a profile photo
+#             return send_from_directory(app.config['UPLOAD_FOLDER'], 'default.png')  # Ensure default is .png
+#     else:
+#         return jsonify({'error': 'Email is required'}), 400
 
 
     
