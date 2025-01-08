@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ingreskin/homeScreenSection/productExpirytracker.dart'; // Adjust the import path if necessary
+import 'package:ingreskin/homeScreenSection/productExpirytracker.dart';
 import 'package:intl/intl.dart';
 
 class AddProductPage extends StatefulWidget {
@@ -11,7 +11,6 @@ class AddProductPage extends StatefulWidget {
 
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _idController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _brandController = TextEditingController();
   DateTime? _openedDate;
@@ -19,7 +18,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
   @override
   void dispose() {
-    _idController.dispose();
     _nameController.dispose();
     _brandController.dispose();
     super.dispose();
@@ -40,21 +38,6 @@ class _AddProductPageState extends State<AddProductPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _idController,
-                decoration: const InputDecoration(labelText: 'Product ID'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the product ID';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Product ID must be a valid number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Product Name'),
@@ -138,10 +121,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     if (_formKey.currentState!.validate() &&
                         _openedDate != null &&
                         _expiryDate != null) {
+                      // Generate a temporary unique ID for the product (to be replaced by backend ID)
+                      final int tempId = DateTime.now().millisecondsSinceEpoch;
+
                       Navigator.pop(
                         context,
                         ProductItem(
-                          id: int.parse(_idController.text), // Include the ID here
+                          id: tempId,
                           name: _nameController.text,
                           brand: _brandController.text,
                           openedDate: _openedDate!,
@@ -157,7 +143,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 33, 139, 225), // Button background color
+                    backgroundColor: const Color.fromARGB(255, 33, 139, 225),
                   ),
                   child: const Text('Add Product'),
                 ),

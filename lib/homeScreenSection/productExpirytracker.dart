@@ -14,14 +14,14 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class ProductItem {
-  final int id; // Added the ID field
+  final int id;
   final String name;
   final String brand;
   final DateTime openedDate;
   final DateTime expiryDate;
 
   ProductItem({
-    required this.id, // ID is now required
+    required this.id,
     required this.name,
     required this.brand,
     required this.openedDate,
@@ -30,7 +30,7 @@ class ProductItem {
 
   factory ProductItem.fromJson(Map<String, dynamic> json) {
     return ProductItem(
-      id: json['id'] as int, // Parse ID from JSON
+      id: json['id'] as int,
       name: json['name'] as String,
       brand: json['brand'] as String,
       openedDate: DateTime.parse(json['opened_date'] as String),
@@ -40,7 +40,7 @@ class ProductItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id, // Include ID in JSON
+      'id': id,
       'name': name,
       'brand': brand,
       'opened_date': openedDate.toIso8601String(),
@@ -160,7 +160,7 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
 
     if (expiryDate.isAfter(now)) {
       try {
-        final int notificationId = product.id; // Use product ID as the notification ID
+        final int notificationId = product.id;
         const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
           'product_expiry_channel',
           'Product Expiry Alerts',
@@ -237,7 +237,7 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
   void _removeProduct(int index) async {
     final product = _products[index];
     try {
-      await _removeProductFromBackend(product.id); // Use product.id
+      await _removeProductFromBackend(product.id);
       setState(() {
         _products.removeAt(index);
       });
@@ -341,6 +341,11 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
               ],
             ),
             const SizedBox(height: 8),
+            Text(
+              'ID: ${product.id}', // Display the ID
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -387,5 +392,6 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
     if (daysRemaining <= 30) return Colors.red;
     if (daysRemaining <= 60) return Colors.orange;
     return Colors.green;
+ 
   }
 }
