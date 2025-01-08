@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => TextExtractorScreen(),
-        '/aiAssistant': (context) => AIassistant(),
+        '/aiAssistant': (context) =>  AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
       },
     );

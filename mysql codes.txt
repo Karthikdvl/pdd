@@ -40,4 +40,12 @@ CREATE TABLE cosmetics (
     `Sensitive` INT
 );
 
+CREATE TABLE product_tracking (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    brand TEXT NOT NULL,
+    opened_date DATE NOT NULL,
+    expiry_date DATE NOT NULL,
+    user_email TEXT NOT NULL
+);
 

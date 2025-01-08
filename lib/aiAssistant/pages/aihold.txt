@@ -48,7 +48,7 @@ class _AIassistantState extends State<AIassistant> {
   ChatUser currentUser = ChatUser(id: "0", firstName: "User");
   ChatUser geminiUser = ChatUser(
     id: "1",
-    firstName: "Gemini",
+    firstName: "GPT",
     profileImage: "assets/logo1.png",
   );
 
@@ -120,104 +120,22 @@ class _AIassistantState extends State<AIassistant> {
                 messageOptions: MessageOptions(
                   showTime: true,
                   messagePadding: const EdgeInsets.all(10),
-                  messageDecorationBuilder: (message, previousMessage, nextMessage) {
+                  messageDecorationBuilder:
+                      (message, previousMessage, nextMessage) {
                     return BoxDecoration(
-                      color: message.user == currentUser 
-                          ? Colors.lightBlue 
+                      color: message.user == currentUser
+                          ? Colors.lightBlue
                           : Colors.blue,
                       borderRadius: BorderRadius.circular(12),
                     );
                   },
                   messageTextBuilder: (message, previousMessage, nextMessage) {
-                    List<String> lines = message.text.split('\n');
-                    List<Widget> textWidgets = [];
-
-                    for (String line in lines) {
-                      // Check for heading (lines starting with #)
-                      if (line.trim().startsWith('#')) {
-                        int headerLevel = line.indexOf(' ');
-                        if (headerLevel > 0 && headerLevel <= 6) {
-                          String headerText = line.substring(headerLevel + 1);
-                          double fontSize = 22 - (headerLevel * 2);
-                          textWidgets.add(
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text(
-                                headerText,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          );
-                          continue;
-                        }
-                      }
-
-                      // Check for bullet points
-                      if (line.trim().startsWith('•') || 
-                          line.trim().startsWith('-') || 
-                          line.trim().startsWith('*')) {
-                        textWidgets.add(
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
-                            child: Text(
-                              line,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        );
-                        continue;
-                      }
-
-                      // Check for code blocks
-                      if (line.trim().startsWith('```') || line.trim().startsWith('`')) {
-                        textWidgets.add(
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              line.replaceAll('```', '').replaceAll('`', ''),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ),
-                        );
-                        continue;
-                      }
-
-                      // Regular text
-                      if (line.isNotEmpty) {
-                        textWidgets.add(
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              line,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: textWidgets,
+                    return Text(
+                      message.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     );
                   },
                 ),
@@ -263,86 +181,69 @@ class _AIassistantState extends State<AIassistant> {
     _generateResponse(chatMessage);
   }
 
-void _generateResponse(ChatMessage chatMessage) {
-  try {
-    String question = chatMessage.text;
-    List<Uint8List>? images;
-    if (chatMessage.medias?.isNotEmpty ?? false) {
-      images = [
-        File(chatMessage.medias!.first.url).readAsBytesSync(),
-      ];
-    }
+  void _generateResponse(ChatMessage chatMessage) {
+    try {
+      String question = chatMessage.text;
+      List<Uint8List>? images;
+      if (chatMessage.medias?.isNotEmpty ?? false) {
+        images = [
+          File(chatMessage.medias!.first.url).readAsBytesSync(),
+        ];
+      }
 
-    // Show typing indicator
-    setState(() {
-      messages = [
-        ChatMessage(
-          user: geminiUser,
-          createdAt: DateTime.now(),
-          text: "Typing...",
-        ),
-        ...messages,
-      ];
-    });
+      // Show typing indicator
+      setState(() {
+        messages = [
+          ChatMessage(
+            user: geminiUser,
+            createdAt: DateTime.now(),
+            text: "Typing...",
+          ),
+          ...messages,
+        ];
+      });
 
-    String accumulatedResponse = '';
-
-    gemini.streamGenerateContent(
-      question,
-      images: images,
-    ).listen(
-      (event) {
-        String newContent = event.content?.parts?.fold(
-            "", (previous, current) => "$previous${current.text}") ?? "";
-        accumulatedResponse += newContent;
-
-        setState(() {
-          // Update the typing message with accumulated response
-          messages = messages.map((m) {
-            if (m.text == "Typing..." || m.user == geminiUser) {
-              return ChatMessage(
+      gemini
+          .streamGenerateContent(
+        question,
+        images: images,
+      )
+          .listen(
+        (event) {
+          String response = event.content?.parts?.fold(
+                  "", (previous, current) => "$previous ${current.text}") ??
+              "";
+          ChatMessage message = ChatMessage(
+            user: geminiUser,
+            createdAt: DateTime.now(),
+            text: response,
+          );
+          setState(() {
+            // Remove typing indicator and add new message
+            messages = messages.where((m) => m.text != "Typing...").toList();
+            messages = [message, ...messages];
+          });
+          _saveConversationHistory();
+        },
+        onError: (error) {
+          // Remove typing indicator and show error message
+          setState(() {
+            messages = messages.where((m) => m.text != "Typing...").toList();
+            messages = [
+              ChatMessage(
                 user: geminiUser,
                 createdAt: DateTime.now(),
-                text: accumulatedResponse,
-              );
-            }
-            return m;
-          }).toList();
-        });
-      },
-      onError: (error) {
-        setState(() {
-          messages = messages.where((m) => m.text != "Typing...").toList();
-          messages = [
-            ChatMessage(
-              user: geminiUser,
-              createdAt: DateTime.now(),
-              text: "Sorry, I encountered an error. Please try again.",
-            ),
-            ...messages,
-          ];
-        });
-      },
-      onDone: () {
-        // Final update with complete message
-        setState(() {
-          messages = messages.where((m) => m.text != "Typing...").toList();
-          messages = [
-            ChatMessage(
-              user: geminiUser,
-              createdAt: DateTime.now(),
-              text: accumulatedResponse,
-            ),
-            ...messages,
-          ];
-        });
-        _saveConversationHistory();
-      },
-    );
-  } catch (e) {
-    print(e);
+                text: "Sorry, I encountered an error. Please try again.",
+              ),
+              ...messages,
+            ];
+          });
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
   }
-}
 
   void _sendMediaMessage() async {
     ImagePicker picker = ImagePicker();
