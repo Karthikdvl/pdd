@@ -48,7 +48,7 @@ class _AIassistantState extends State<AIassistant> {
   ChatUser currentUser = ChatUser(id: "0", firstName: "User");
   ChatUser geminiUser = ChatUser(
     id: "1",
-    firstName: "Gemini",
+    firstName: "GPT",
     profileImage: "assets/logo1.png",
   );
 

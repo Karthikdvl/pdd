@@ -14,14 +14,12 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class ProductItem {
-  final int id; // Added the ID field
   final String name;
   final String brand;
   final DateTime openedDate;
   final DateTime expiryDate;
 
   ProductItem({
-    required this.id, // ID is now required
     required this.name,
     required this.brand,
     required this.openedDate,
@@ -30,7 +28,6 @@ class ProductItem {
 
   factory ProductItem.fromJson(Map<String, dynamic> json) {
     return ProductItem(
-      id: json['id'] as int, // Parse ID from JSON
       name: json['name'] as String,
       brand: json['brand'] as String,
       openedDate: DateTime.parse(json['opened_date'] as String),
@@ -40,7 +37,6 @@ class ProductItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id, // Include ID in JSON
       'name': name,
       'brand': brand,
       'opened_date': openedDate.toIso8601String(),
@@ -160,7 +156,7 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
 
     if (expiryDate.isAfter(now)) {
       try {
-        final int notificationId = product.id; // Use product ID as the notification ID
+        final int notificationId = product.hashCode;
         const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
           'product_expiry_channel',
           'Product Expiry Alerts',
@@ -209,6 +205,9 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
         }),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 201) {
         print('Product added successfully!');
       } else {
@@ -234,33 +233,10 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
     }
   }
 
-  void _removeProduct(int index) async {
-    final product = _products[index];
-    try {
-      await _removeProductFromBackend(product.id); // Use product.id
-      setState(() {
-        _products.removeAt(index);
-      });
-      print('Product removed from backend and list.');
-    } catch (e) {
-      print('Error removing product: $e');
-    }
-  }
-
-  Future<void> _removeProductFromBackend(int productId) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('$_baseUrl/remove_product_tracking/$productId'),
-      );
-
-      if (response.statusCode == 200) {
-        print('Product removed successfully!');
-      } else {
-        print('Failed to remove product: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error removing product: $e');
-    }
+  void _removeProduct(int index) {
+    setState(() {
+      _products.removeAt(index);
+    });
   }
 
   @override

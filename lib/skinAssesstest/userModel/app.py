@@ -682,6 +682,23 @@ def get_product_tracking():
             "expiry_date": p.expiry_date.strftime('%Y-%m-%d'),
         } for p in products
     ])
+    
+@app.route('/remove_product_tracking/<int:product_id>', methods=['DELETE'])
+def remove_product_tracking(product_id):
+    try:
+        # Find the product by its ID
+        product = db.session.get(ProductTracking, product_id)
+        if not product:
+            return jsonify({"error": "Product not found."}), 404
+
+        # Remove the product from the database
+        db.session.delete(product)
+        db.session.commit()
+
+        return jsonify({"message": "Product removed successfully!"}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 #------------------------------------------------------------
 
 
