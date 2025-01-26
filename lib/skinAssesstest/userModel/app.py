@@ -76,8 +76,8 @@ def send_otp():
         # SMTP server configuration
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
-        sender_email = "dvlkarthik123@gmail.com"  # Replace with your email
-        sender_password = "unai tsay ngdl ahqa" # Replace with your app password
+        sender_email = ""  # Replace with your email
+        sender_password = "" # Replace with your app password
 
         # Email content
         subject = "Your One-Time OTP Code for Verification"

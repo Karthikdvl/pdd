@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     AdImage(imageUrl: 'assets/ad1.png'),
                     AdImage(imageUrl: 'assets/ad2.png'),
-                    AdImage(imageUrl: 'assets/ad3.png'),
+                    AdImage(imageUrl: 'assets/ad6.jpg'),
                     AdImage(imageUrl: 'assets/ad4.png'),
                   ],
                 ),

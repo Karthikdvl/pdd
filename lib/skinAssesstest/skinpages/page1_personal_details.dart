@@ -72,17 +72,27 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                   backgroundColor: Colors.blue,
                 ),
                 onPressed: () {
-                  // Save the data into the UserSkinData instance
-                  widget.userSkinData.name = _nameController.text;
-                  widget.userSkinData.ageGroup = _selectedAgeGroup;
+                  if (_selectedAgeGroup == null) {
+                    // Show a Snackbar if no age group is selected
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please select an age group before proceeding.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  } else {
+                    // Save the data into the UserSkinData instance
+                    widget.userSkinData.name = _nameController.text;
+                    widget.userSkinData.ageGroup = _selectedAgeGroup;
 
-                  // Navigate to the next page and pass the same UserSkinData instance
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SkinTypePage(userSkinData: widget.userSkinData),
-                    ),
-                  );
+                    // Navigate to the next page and pass the same UserSkinData instance
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SkinTypePage(userSkinData: widget.userSkinData),
+                      ),
+                    );
+                  }
                 },
                 child: Text('Next →'),
               ),

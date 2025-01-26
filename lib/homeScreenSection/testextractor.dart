@@ -220,6 +220,16 @@ Future<void> _deleteFile(String filePath) async {
                 ),
               ),
 
+              // Note
+              const SizedBox(height: 8),
+              const Text(
+                'Note: Crop the image or take a photo of the ingredient list only.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+
               // Bottom Buttons
               Expanded(
                 child: Align(

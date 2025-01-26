@@ -6,7 +6,8 @@ import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart';
 class SunExposurePage extends StatefulWidget {
   final UserSkinData userSkinData; // Accept UserSkinData instance
 
-  const SunExposurePage({Key? key, required this.userSkinData}) : super(key: key);
+  const SunExposurePage({Key? key, required this.userSkinData})
+      : super(key: key);
 
   @override
   _SunExposurePageState createState() => _SunExposurePageState();
@@ -16,9 +17,18 @@ class _SunExposurePageState extends State<SunExposurePage> {
   String? _selectedFrequency;
 
   final List<Map<String, String>> exposureOptions = [
-    {'label': 'Rarely (Less than 1 hour)', 'image': 'assets/skinimages/rarely.png'},
-    {'label': 'Occasionally (1-3 hours)', 'image': 'assets/skinimages/occasionally.png'},
-    {'label': 'Frequently (More than 3 hours)', 'image': 'assets/skinimages/frequently.png'},
+    {
+      'label': 'Rarely (Less than 1 hour)',
+      'image': 'assets/skinimages/rarely.png'
+    },
+    {
+      'label': 'Occasionally (1-3 hours)',
+      'image': 'assets/skinimages/occasionally.png'
+    },
+    {
+      'label': 'Frequently (More than 3 hours)',
+      'image': 'assets/skinimages/frequently.png'
+    },
   ];
 
   @override
@@ -35,7 +45,8 @@ class _SunExposurePageState extends State<SunExposurePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('How often are you exposed to sunlight?', style: TextStyle(fontSize: 16)),
+            Text('How often are you exposed to sunlight?',
+                style: TextStyle(fontSize: 16)),
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -53,7 +64,8 @@ class _SunExposurePageState extends State<SunExposurePage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: _selectedFrequency == exposureOptions[index]['label']
+                          color: _selectedFrequency ==
+                                  exposureOptions[index]['label']
                               ? Colors.teal
                               : Colors.grey,
                           width: 5,
@@ -86,18 +98,29 @@ class _SunExposurePageState extends State<SunExposurePage> {
                   backgroundColor: Colors.blue, // Set the text color here
                 ),
                 onPressed: () {
-                  // Update UserSkinData with the selected sun exposure frequency
-                  widget.userSkinData.sunExposure = _selectedFrequency;
-
-                  // Navigate to PrimaryEnvironmentPage with updated UserSkinData
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PrimaryEnvironmentPage(
-                        userSkinData: widget.userSkinData,
+                  if (_selectedFrequency == null) {
+                    // Show a Snackbar if no sun exposure option is selected
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Please select your sunlight exposure frequency before proceeding.'),
+                        duration: Duration(seconds: 2),
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    // Update UserSkinData with the selected sun exposure frequency
+                    widget.userSkinData.sunExposure = _selectedFrequency;
+
+                    // Navigate to PrimaryEnvironmentPage with updated UserSkinData
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrimaryEnvironmentPage(
+                          userSkinData: widget.userSkinData,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 child: Text('Next →'),
               ),
