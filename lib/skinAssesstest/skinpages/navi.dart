@@ -40,12 +40,7 @@ class NavigationBar extends StatelessWidget {
               '/home',
             ),
             SizedBox(height: 20), // Space between buttons
-            buildMenuButton(
-              context,
-              Icons.health_and_safety,
-              'Skin Assessment',
-              '/skin-assessment',
-            ),
+            buildSkinAssessmentButton(context),
           ],
         ),
       ),
@@ -68,6 +63,51 @@ class NavigationBar extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pushNamed(routeName);
       },
+    );
+  }
+
+  // Custom Skin Assessment button
+  Widget buildSkinAssessmentButton(BuildContext context) {
+    return Center(
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, '/skin-assessment');
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue, Colors.purple],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                offset: Offset(0, 4),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.touch_app, color: Colors.white), // Added icon
+              SizedBox(width: 8),
+              Text(
+                'Skin Assessment',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

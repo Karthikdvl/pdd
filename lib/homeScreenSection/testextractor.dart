@@ -29,84 +29,113 @@ class _TextExtractorScreenState extends State<TextExtractorScreen> {
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_image == null) return;
+Future<void> _uploadImage() async {
+  if (_image == null) return;
 
+  setState(() {
+    isLoading = true;
+  });
+
+  String? filePath;
+
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$BASE_URL/upload'),
+    );
+
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        _image!.path,
+      ),
+    );
+
+    var response = await request.send();
+    var responseData = await response.stream.bytesToString();
+    var jsonResponse = json.decode(responseData);
+
+    if (response.statusCode == 200) {
+      filePath = jsonResponse['file_path'];
+      extractedText = jsonResponse['extracted_text'];
+
+      // Automatically analyze the ingredients after extraction
+      await _analyzeIngredients(extractedText!, filePath);
+    } else {
+      _showErrorSnackBar(jsonResponse['error'] ?? 'Failed to upload image');
+    }
+  } catch (e) {
+    _showErrorSnackBar('Error during image upload: $e');
+  } finally {
     setState(() {
-      isLoading = true;
+      isLoading = false;
     });
+  }
+}
 
-    try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$BASE_URL/upload'),
-      );
+Future<void> _analyzeIngredients(String ingredientsText, String? filePath) async {
+  if (filePath == null) {
+    _showErrorSnackBar('File path is missing. Analysis cannot proceed.');
+    return;
+  }
 
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
-          _image!.path,
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    final response = await http.post(
+      Uri.parse('$BASE_URL/analyze'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'ingredients': ingredientsText.split(',').map((e) => e.trim()).toList(),
+        'file_path': filePath,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        analysisResult = json.decode(response.body);
+      });
+
+      // Navigate to the analysis screen
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnalysisPage(result: analysisResult!),
         ),
       );
 
-      var response = await request.send();
-      var responseData = await response.stream.bytesToString();
-      var jsonResponse = json.decode(responseData);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          extractedText = jsonResponse['extracted_text'];
-        });
-
-        // Automatically analyze the ingredients after extraction
-        await _analyzeIngredients(extractedText!);
-      }
-    } catch (e) {
-      _showErrorSnackBar('Failed to upload image');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      // Delete file after returning from analysis page
+      await _deleteFile(filePath);
+    } else {
+      final errorResponse = json.decode(response.body);
+      _showErrorSnackBar(errorResponse['error'] ?? 'Failed to analyze ingredients');
     }
-  }
-
-  Future<void> _analyzeIngredients(String ingredientsText) async {
+  } catch (e) {
+    _showErrorSnackBar('Error during analysis: $e');
+  } finally {
     setState(() {
-      isLoading = true;
+      isLoading = false;
     });
-
-    try {
-      final response = await http.post(
-        Uri.parse('$BASE_URL/analyze'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'ingredients': ingredientsText.split(',').map((e) => e.trim()).toList(),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          analysisResult = json.decode(response.body);
-        });
-
-        // Navigate to the analysis screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AnalysisPage(result: analysisResult!),
-          ),
-        );
-      } else {
-        _showErrorSnackBar('Failed to analyze ingredients');
-      }
-    } catch (e) {
-      _showErrorSnackBar('Error analyzing ingredients: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
+}
+
+Future<void> _deleteFile(String filePath) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$BASE_URL/delete'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'file_path': filePath}),
+    );
+
+    if (response.statusCode != 200) {
+      _showErrorSnackBar('Failed to delete file. Please try again later.');
+    }
+  } catch (e) {
+    _showErrorSnackBar('Error deleting file: $e');
+  }
+}
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

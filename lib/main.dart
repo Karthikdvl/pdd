@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ingreskin/adminPages/adminDashboard.dart';
-import 'package:ingreskin/adminPages/admin_forgot_password.dart';
+//import 'package:ingreskin/adminPages/adminDashboard.dart';
+//import 'package:ingreskin/adminPages/admin_forgot_password.dart';
 import 'package:ingreskin/adminPages/feedbackscreen.dart';
 import 'package:ingreskin/adminPages/productEditscreen.dart';
 import 'package:ingreskin/adminPages/productListScreen.dart';
@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
         '/feedback': (context) => const FeedbackScreen(),
         '/reviews': (context) => const ReviewsScreen(),
         //'/dashboard': (context) => const DashboardScreen(),
-        '/forgot-password': (context) => const AdminForgotPasswordScreen(),
+        //'/forgot-password': (context) => const AdminForgotPasswordScreen(),
         '/home': (context) => HomePage(),
         '/navigation': (context) => NavigationBarPage(),
         '/skin-assessment': (context) =>
@@ -134,6 +134,15 @@ class _SplashScreenState extends State<SplashScreen> {
                     height: 120,
                     width: 120,
                     fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 20), // Space between logo and text
+                Text(
+                  'INGRESKIN',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
                   ),
                 ),
               ],

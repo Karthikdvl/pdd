@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(),
         '/product-expiry': (context) => ProductExpiryTrackerPage(),
         '/photo': (context) => TextExtractorScreen(),
-        '/aiAssistant': (context) =>  AIassistant(),
+        '/aiAssistant': (context) => AIassistant(),
         '/search-results': (context) => SearchResultsPage(),
       },
     );
@@ -39,20 +39,19 @@ class _HomePageState extends State<HomePage> {
   String? userName;
   String? userEmail;
 
-  final PageController _pageController =
-      PageController(); // PageController for PageView
+  final PageController _pageController = PageController();
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _loadUserDetails();
-    _startAutoScroll(); // Start the auto-scrolling
+    _startAutoScroll();
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -74,11 +73,10 @@ class _HomePageState extends State<HomePage> {
 
   void _startAutoScroll() {
     _timer = Timer.periodic(Duration(seconds: 7), (timer) {
-      // Changed to 8 seconds
       if (_pageController.hasClients) {
         final nextPage = (_pageController.page ?? 0) + 1;
         _pageController.animateToPage(
-          nextPage.toInt() % 4, // Loop back to the first image after the last
+          nextPage.toInt() % 4,
           duration: Duration(milliseconds: 1000),
           curve: Curves.easeInOut,
         );
@@ -90,7 +88,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Homepage', style: TextStyle(color: Colors.black)),
+        title: Text('Home', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black),
@@ -126,14 +124,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 8),
-              // Text(
-              //   'Email: $userEmail',
-              //   style: TextStyle(
-              //     fontSize: 16,
-              //     color: Colors.grey[700],
-              //   ),
-              // ),
-              // SizedBox(height: 24),
               TextField(
                 controller: _searchController,
                 onSubmitted: (_) => _searchProducts(),
@@ -153,18 +143,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 24),
-              Text(
-                'Ads',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  '_______________________________',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               SizedBox(height: 12),
-              // PageView for Auto-Sliding Ads Section with increased size
               SizedBox(
-                height: 220, // Increased height for ads cards
+                height: 220,
                 child: PageView(
                   controller: _pageController,
                   children: [
@@ -172,6 +164,63 @@ class _HomePageState extends State<HomePage> {
                     AdImage(imageUrl: 'assets/ad2.png'),
                     AdImage(imageUrl: 'assets/ad3.png'),
                     AdImage(imageUrl: 'assets/ad4.png'),
+                  ],
+                ),
+              ),
+              SizedBox(height: 30),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Want to learn about your skin and discover products tailored for your skin needs?',
+                      style: TextStyle(
+                        fontSize: 20,
+                        //fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 30),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/navigation');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.blue, Colors.purple],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 4),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.touch_app, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'Take Skin Assessment',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -187,7 +236,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.watch_later), // Product Expiry Tracker Icon
+            icon: Icon(Icons.watch_later),
             label: 'Expiry Tracker',
           ),
           BottomNavigationBarItem(
@@ -195,7 +244,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Photo',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.smart_toy), // AI Assistant Icon
+            icon: Icon(Icons.smart_toy),
             label: 'AI Assistant',
           ),
         ],
@@ -211,8 +260,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(context, '/photo');
               break;
             case 3:
-              Navigator.pushNamed(
-                  context, '/aiAssistant'); // Navigate to AI Assistant
+              Navigator.pushNamed(context, '/aiAssistant');
               break;
           }
         },
@@ -221,7 +269,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// AdImage Widget for Ads
 class AdImage extends StatelessWidget {
   final String imageUrl;
 

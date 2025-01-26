@@ -104,9 +104,17 @@ class _AddProductPageState extends State<AddProductPage> {
                         lastDate: DateTime(2100),
                       );
                       if (pickedDate != null) {
-                        setState(() {
-                          _expiryDate = pickedDate;
-                        });
+                        if (_openedDate != null && pickedDate.isBefore(_openedDate!)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Expiry date cannot be before opened date.'),
+                            ),
+                          );
+                        } else {
+                          setState(() {
+                            _expiryDate = pickedDate;
+                          });
+                        }
                       }
                     },
                     child: const Text('Select Date'),

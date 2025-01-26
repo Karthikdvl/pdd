@@ -22,7 +22,7 @@ pymysql.install_as_MySQLdb()
 
 from werkzeug.utils import secure_filename
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:/Program Files/Tesseract-OCR/tesseract.exe"  # Update path as per your system
+pytesseract.pytesseract.tesseract_cmd = r"lib/Tesseract-OCR/tesseract.exe"  # Update path as per your system
 from PIL import Image
 import cv2
 import numpy as np
@@ -77,7 +77,7 @@ def send_otp():
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         sender_email = "dvlkarthik123@gmail.com"  # Replace with your email
-        sender_password = "veij nqen btom gxph" # Replace with your app password
+        sender_password = "unai tsay ngdl ahqa" # Replace with your app password
 
         # Email content
         subject = "Your One-Time OTP Code for Verification"
@@ -95,9 +95,8 @@ def send_otp():
         Thank you for your trust, and welcome to [Your Company Name]!
         
         Best regards,
-        [Your Company Name]
-        [Your Website URL]
-        [Your Support Email/Contact]
+        [INGRESKIN]
+        [support : dvlkarthik123@gmail.com]
         """
         message = f"Subject: {subject}\n\n{body}"
 
@@ -223,6 +222,36 @@ def logout():
     # Clear the session data
     session.clear()
     return jsonify({'message': 'Logout successful!'}), 200
+
+
+
+#--------------------------------------------------------------------------------
+from flask import send_from_directory
+
+
+@app.route('/update-profile-name', methods=['POST'])
+def update_profile_name():
+    email = request.form.get('email')
+    name = request.form.get('name')
+
+    if not email or not name:
+        return jsonify({'message': 'Email and name are required!'}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({'message': 'User not found!'}), 404
+
+    user.name = name
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Name updated successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Failed to update name.', 'error': str(e)}), 500
+
+
 
 #-----------------------------------------------------------------------------
 
@@ -365,20 +394,6 @@ def get_products():
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response, 200
 
-# @app.route('/products/<int:product_id>', methods=['GET'])
-# def get_product_details(product_id):
-#     try:
-#         # Query the product by its ID
-#         product = Product.query.get(product_id)
-#         if product:
-#             # Convert the product to a dictionary and return it
-#             return jsonify(product.to_dict()), 200
-#         else:
-#             # If product not found, return a 404 error
-#             return jsonify({"message": "Product not found"}), 404
-#     except Exception as e:
-#         # Handle any unexpected errors
-#         return jsonify({"message": "Failed to fetch product details", "error": str(e)}), 500
 
 @app.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -463,22 +478,39 @@ def recommend_products():
             "status": "error",
             "message": str(e)
         }), 500
+        
+        
+
 #---------------------------------------------------------------------
 import logging
 import re 
-
+import pandas as pd
+# Configure upload folder
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the upload folder exists
 
-# Ensure the upload folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Load clean ingredient list
+clean_ingreds = set()
+
+def load_clean_ingredients():
+    global clean_ingreds
+    try:
+        df = pd.read_csv("skincare_products_clean.csv")
+        clean_ingreds = set(df['clean_ingreds'].str.lower().str.strip())
+        print(f"Loaded {len(clean_ingreds)} clean ingredients.")
+    except Exception as e:
+        print(f"Error loading clean ingredients: {e}")
+
+# Load the ingredient list on startup
+load_clean_ingredients()
+
 @app.route('/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image file provided'}), 400
-    
+
     image_file = request.files['image']
-    
     if image_file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
@@ -488,19 +520,17 @@ def upload_image():
     try:
         image = Image.open(file_path)
         extracted_text = pytesseract.image_to_string(image)
-        
-        # Look for ingredients section
+
+        # Extract ingredients section
         ingredients_text = ""
         lines = extracted_text.split('\n')
         found_ingredients = False
-        
+
         for line in lines:
-            # Check for ingredients header
             if re.search(r'ingredients?[:]*', line.lower()):
                 found_ingredients = True
                 continue
-                
-            # Collect ingredients until we hit another section or empty lines
+
             if found_ingredients:
                 if line.strip() and not line.lower().endswith(':') and not re.match(r'^[A-Z\s]+:', line):
                     ingredients_text += line.strip() + '\n'
@@ -508,141 +538,57 @@ def upload_image():
                     continue
                 else:
                     break
-        
+
         if not ingredients_text:
             return jsonify({'error': 'No ingredients found in image'}), 404
 
-        # Clean up the ingredients text
         ingredients_text = "ingredients:\n" + ingredients_text.strip()
-        
-        return jsonify({'extracted_text': ingredients_text}), 200
-        
+
+        return jsonify({'extracted_text': ingredients_text, 'file_path': file_path}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
 
-#--------------------------------------------------------------------------------
-from flask import send_from_directory
-
-
-@app.route('/update-profile-name', methods=['POST'])
-def update_profile_name():
-    email = request.form.get('email')
-    name = request.form.get('name')
-
-    if not email or not name:
-        return jsonify({'message': 'Email and name are required!'}), 400
-
-    user = User.query.filter_by(email=email).first()
-
-    if not user:
-        return jsonify({'message': 'User not found!'}), 404
-
-    user.name = name
-
-    try:
-        db.session.commit()
-        return jsonify({'success': True, 'message': 'Name updated successfully!'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': 'Failed to update name.', 'error': str(e)}), 500
-
-
-
-# @app.route('/update-profile-photo', methods=['POST'])
-# def update_profile_photo():
-#     email = request.form.get('email')
-#     if not email:
-#         return jsonify({'message': 'Email is required!'}), 400
-
-#     user = User.query.filter_by(email=email).first()
-
-#     if not user:
-#         return jsonify({'message': 'User not found!'}), 404
-
-#     photo = request.files.get('photo')
-#     if not photo:
-#         return jsonify({'message': 'No photo selected!'}), 400
-
-#     filename = f"{user.email}_profile.jpg"
-#     filepath = os.path.join(UPLOAD_FOLDER, filename)
-#     photo.save(filepath)
-
-#     try:
-#         db.session.commit()
-#         photo_url = f"/{UPLOAD_FOLDER}/{filename}"
-#         return jsonify({'success': True, 'photoUrl': photo_url}), 200
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({'success': False, 'message': 'Failed to update photo.', 'error': str(e)}), 500
-
-
-# @app.route('/get-profile-photo', methods=['GET'])
-# def get_profile_photo():
-#     email = request.args.get('email')  # Get the email from the query string
-#     if email:
-#         # Construct the filename (assuming the profile photo is named after the email with .png extension)
-#         filename = f"{email}_profile.png"  # Change the extension to .png
-#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-#         # Check if the file exists, and return it; otherwise, return a default image
-#         if os.path.exists(file_path):
-#             return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-#         else:
-#             # Return a default image if the user doesn't have a profile photo
-#             return send_from_directory(app.config['UPLOAD_FOLDER'], 'default.png')  # Ensure default is .png
-#     else:
-#         return jsonify({'error': 'Email is required'}), 400
-
-
-    
-#-----------------------------------------------------------------------------------------------------------------------
-
-import pandas as pd
-
-# Load clean ingredient list
-clean_ingreds = set()
-
-def load_clean_ingredients():
-    global clean_ingreds
-    try:
-        # Load CSV and ensure column name matches
-        df = pd.read_csv("F:/Android development/skincare_products_clean.csv")
-        print("CSV columns:", df.columns)  # Debugging: print column names
-        clean_ingreds = set(df['clean_ingreds'].str.lower().str.strip())
-        print(f"Loaded {len(clean_ingreds)} clean ingredients.")  # Debugging: print count
-    except Exception as e:
-        print(f"Error loading clean ingredients: {e}")
-
-# Load the ingredient list on startup
-load_clean_ingredients()
-
-@app.route("/analyze", methods=["POST"])
+@app.route('/analyze', methods=['POST'])
 def analyze_ingredients():
     try:
-        # Parse the JSON payload
         data = request.json
-        if not data or "ingredients" not in data:
-            return jsonify({"error": "Missing 'ingredients' field in the request."}), 400
+        if not data or 'ingredients' not in data or 'file_path' not in data:
+            return jsonify({'error': "Missing 'ingredients' or 'file_path' field in the request."}), 400
 
-        # Extract and process ingredients
-        ingredients = [ing.lower().strip() for ing in data["ingredients"]]
+        ingredients = [ing.lower().strip() for ing in data['ingredients']]
+        file_path = data['file_path']
+
         bad = [ing for ing in ingredients if ing in clean_ingreds]
         clean = [ing for ing in ingredients if ing not in clean_ingreds and ing != ""]
         na = [ing for ing in ingredients if ing == ""]
 
-        # Prepare the response
         response = {
-            "clean_ingredients": clean,
-            "bad_ingredients": bad,
-            "not_recognized": na
+            'clean_ingredients': clean,
+            'bad_ingredients': bad,
+            'not_recognized': na,
         }
-        print("Analysis response:", response)  # Debugging: log response
-        return jsonify(response)
+
+        return jsonify(response), 200
 
     except Exception as e:
-        print(f"Error during analysis: {e}")  # Debugging: log errors
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/delete', methods=['POST'])
+def delete_file():
+    try:
+        data = request.json
+        file_path = data.get('file_path')
+
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'message': 'File deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'File not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # ------------------------------------------------------
 
@@ -701,63 +647,6 @@ def remove_product_tracking(product_id):
 
 #------------------------------------------------------------
 
-
-# # Cosmetics Model
-# class Cosmetic(db.Model):
-#     __tablename__ = 'cosmetics'  # Match the name of your table.
-
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     label = db.Column(db.String(255), nullable=True)
-#     brand = db.Column(db.String(255), nullable=True)
-#     name = db.Column(db.String(255), nullable=True)
-#     price = db.Column(db.Integer, nullable=True)
-#     rank = db.Column(db.Float(precision=2), nullable=True)
-#     ingredients = db.Column(db.Text, nullable=True)
-#     combination = db.Column(db.Integer, nullable=True)
-#     dry = db.Column(db.Integer, nullable=True)
-#     normal = db.Column(db.Integer, nullable=True)
-#     oily = db.Column(db.Integer, nullable=True)
-#     sensitive = db.Column(db.Integer, nullable=True)
-
-#     def to_dict(self):
-#         return {
-#             "id": self.id,
-#             "label": self.label,
-#             "brand": self.brand,
-#             "name": self.name,
-#             "price": self.price,
-#             "rank": self.rank,
-#             "ingredients": self.ingredients,
-#             "combination": self.combination,
-#             "dry": self.dry,
-#             "normal": self.normal,
-#             "oily": self.oily,
-#             "sensitive": self.sensitive,
-#         }
-        
-        
-# @app.route('/api/product/<int:product_id>', methods=['GET'])
-# def product_details(product_id):
-#     with connection.cursor() as cursor:
-#         cursor.execute(
-#             """
-#             SELECT id, 
-#                    Label AS label, 
-#                    Brand AS brand, 
-#                    Name AS name, 
-#                    Price AS price, 
-#                    Rank AS rank, 
-#                    Ingredients AS ingredients 
-#             FROM cosmetics 
-#             WHERE id = %s
-#             """,
-#             (product_id,)
-#         )
-#         product = cursor.fetchone()
-#         if product:
-#             return jsonify(product)
-#         else:
-#             return jsonify({"error": "Product not found"}), 404
 
 
 if __name__ == '__main__':
