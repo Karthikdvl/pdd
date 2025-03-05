@@ -3,15 +3,8 @@ import 'package:ingreskin/config.dart';
 import 'package:ingreskin/homeScreenSection/addProductPage.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzData;
 import 'package:shared_preferences/shared_preferences.dart';
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 class ProductItem {
   final int id;
@@ -61,17 +54,14 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
   final List<ProductItem> _products = [];
   String? _userEmail;
   final String _baseUrl = '$BASE_URL';
-  bool _isNotificationsInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeNotifications().then((_) {
-      _loadUserEmail().then((_) {
-        if (_userEmail != null) {
-          _loadProductTracking();
-        }
-      });
+    _loadUserEmail().then((_) {
+      if (_userEmail != null) {
+        _loadProductTracking();
+      }
     });
   }
 
@@ -86,53 +76,6 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
     }
   }
 
-  Future<void> _initializeNotifications() async {
-    if (_isNotificationsInitialized) return;
-
-    tzData.initializeTimeZones();
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-    );
-
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-
-    try {
-      await flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) async {
-          debugPrint('Notification tapped: ${response.payload}');
-        },
-      );
-
-      if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()
-            ?.requestPermissions(
-              alert: true,
-              badge: true,
-              sound: true,
-            );
-      }
-
-      setState(() {
-        _isNotificationsInitialized = true;
-      });
-    } catch (e) {
-      debugPrint('Error initializing notifications: $e');
-    }
-  }
-
   Future<void> _loadProductTracking() async {
     try {
       final response = await http.get(
@@ -143,58 +86,9 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
         setState(() {
           _products.addAll(data.map((json) => ProductItem.fromJson(json)).toList());
         });
-        for (var product in _products) {
-          await _scheduleNotification(product);
-        }
       }
     } catch (e) {
       print('Error fetching product tracking data: $e');
-    }
-  }
-
-  Future<void> _scheduleNotification(ProductItem product) async {
-    if (!_isNotificationsInitialized) return;
-
-    final DateTime expiryDate = product.expiryDate.subtract(const Duration(days: 30));
-    final DateTime now = DateTime.now();
-
-    if (expiryDate.isAfter(now)) {
-      try {
-        final int notificationId = product.id;
-        const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-          'product_expiry_channel',
-          'Product Expiry Alerts',
-          channelDescription: 'Notifications for products nearing expiry',
-          importance: Importance.high,
-          priority: Priority.high,
-        );
-
-        const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        );
-
-        const NotificationDetails details = NotificationDetails(
-          android: androidDetails,
-          iOS: iOSDetails,
-        );
-
-        final tz.TZDateTime tzExpiryDate = tz.TZDateTime.from(expiryDate, tz.local);
-
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-          notificationId,
-          'Expiry Alert: ${product.name}',
-          'The product "${product.name}" will expire in 30 days.',
-          tzExpiryDate,
-          details,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-        );
-      } catch (e) {
-        debugPrint('Error scheduling notification: $e');
-      }
     }
   }
 
@@ -392,6 +286,5 @@ class _ProductExpiryTrackerPageState extends State<ProductExpiryTrackerPage> {
     if (daysRemaining <= 30) return Colors.red;
     if (daysRemaining <= 60) return Colors.orange;
     return Colors.green;
- 
   }
 }

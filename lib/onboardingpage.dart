@@ -1,7 +1,7 @@
 // lib/onboarding_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:ingreskin/adminPages/adminlogin.dart';
+// import 'package:ingreskin/adminPages/adminlogin.dart';
 import 'package:ingreskin/login1.dart';
 import 'package:ingreskin/register.dart';
 

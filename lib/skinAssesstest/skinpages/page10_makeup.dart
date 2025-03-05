@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ingreskin/config.dart';
 import 'package:ingreskin/skinAssesstest/skinpages/productRecommentpage.dart';
-import 'package:ingreskin/skinAssesstest/skinpages/summarypage.dart';
+//import 'package:ingreskin/skinAssesstest/skinpages/summarypage.dart';
 import 'package:ingreskin/skinAssesstest/userModel/userdatamodel.dart'; // Import RecommendedProductsPage
 import 'dart:convert';
 import 'package:http/http.dart' as http;

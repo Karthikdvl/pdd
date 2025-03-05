@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:ingreskin/adminPages/adminDashboard.dart';
 //import 'package:ingreskin/adminPages/admin_forgot_password.dart';
-import 'package:ingreskin/adminPages/feedbackscreen.dart';
-import 'package:ingreskin/adminPages/productEditscreen.dart';
-import 'package:ingreskin/adminPages/productListScreen.dart';
-import 'package:ingreskin/adminPages/productdetaliscreen.dart';
-import 'package:ingreskin/adminPages/reviewScreen.dart';
 import 'package:ingreskin/aiAssistant/pages/AI_homePage.dart';
 import 'package:ingreskin/changepassword.dart';
 import 'package:ingreskin/editprofile.dart';
@@ -50,21 +45,21 @@ class MyApp extends StatelessWidget {
       home: isLoggedIn ?  HomePage() : const SplashScreen(),
 
       routes: {
-        '/list-products': (context) => ProductListScreen(),
+        //'/list-products': (context) => ProductListScreen(),
         //'/edit-products': (context) => const ProductEditScreen(),
-        '/edit-products': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments;
-          print('Arguments received: $args');
-          if (args == null || args is! Map<String, dynamic>) {
-            return Scaffold(
-              body: Center(child: Text('Invalid or missing arguments')),
-            );
-          }
-          return ProductEditScreen(productId: args['productId']);
-        },
+        // '/edit-products': (context) {
+        //   final args = ModalRoute.of(context)!.settings.arguments;
+        //   print('Arguments received: $args');
+        //   if (args == null || args is! Map<String, dynamic>) {
+        //     return Scaffold(
+        //       body: Center(child: Text('Invalid or missing arguments')),
+        //     );
+        //   }
+        //   return ProductEditScreen(productId: args['productId']);
+        // },
 
-        '/feedback': (context) => const FeedbackScreen(),
-        '/reviews': (context) => const ReviewsScreen(),
+        //'/feedback': (context) => const FeedbackScreen(),
+        //'/reviews': (context) => const ReviewsScreen(),
         //'/dashboard': (context) => const DashboardScreen(),
         //'/forgot-password': (context) => const AdminForgotPasswordScreen(),
         '/home': (context) => HomePage(),
@@ -80,11 +75,11 @@ class MyApp extends StatelessWidget {
         '/edit-profile': (context) => EditProfilePage(),
         '/reset-password': (context) => ChangePasswordPage(),
         //'/productDetail': (context) => ProductDetailScreen(),
-        '/productDetail': (context) {
-          final productId = ModalRoute.of(context)!.settings.arguments
-              as int; // Changed to int
-          return ProductDetailScreen(productId: productId);
-        },
+        // '/productDetail': (context) {
+        //   final productId = ModalRoute.of(context)!.settings.arguments
+        //       as int; // Changed to int
+        //   return ProductDetailScreen(productId: productId);
+        // },
       },
     );
   }
